@@ -2,28 +2,29 @@ import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 import os
 import httpx
 from dotenv import load_dotenv
 from pathlib import Path
+import urllib.parse as urlparse
 
 
 class Movie(BaseModel):
-    adult: bool
-    backdrop_path: str
-    genre_ids: List[int]
-    id: int
-    original_title: str
-    original_language: str
-    overview: str
-    popularity: float
-    poster_path: str
-    release_date: str
-    title: str
-    video: bool
-    vote_average: float
-    vote_count: int
+    adult: Optional[bool] = None
+    backdrop_path: Optional[str] = None
+    genre_ids: Optional[List[int]] = None
+    id: Optional[int] = None
+    original_title: Optional[str] = None
+    original_language: Optional[str] = None
+    overview: Optional[str] = None
+    popularity: Optional[float] = None
+    poster_path: Optional[str] = None
+    release_date: Optional[str] = None
+    title: Optional[str] = None
+    video: Optional[bool] = None
+    vote_average: Optional[float] = None
+    vote_count: Optional[int] = None
 
 
 class Movies(BaseModel):
@@ -73,8 +74,6 @@ print(f"Base directory: {BASE_DIR}")
 
 # Explicitly point to .env file
 env_path = BASE_DIR / ".env"
-print(f"Looking for .env at: {env_path}")
-print(f".env file exists: {env_path.exists()}")
 
 # Load environment variables
 load_dotenv(env_path)
@@ -90,12 +89,17 @@ headers = {
 }
 
 
-@app.get("/movies", response_model=Movies)
-async def get_movies():
+@app.get("/api/movies", response_model=Movies)
+async def get_movies(search_term: str = None):
     try:
+        URL = None
+        if search_term:
+            URL = f"{TMDB_BASE_URL}/search/movie?query={urlparse.quote(search_term)}"
+        else:
+            URL = f"{TMDB_BASE_URL}/discover/movie?sort_by=popularity.desc"
         async with httpx.AsyncClient() as client:
             response = await client.get(
-                f"{TMDB_BASE_URL}/discover/movie?sort_by=popularity.desc",
+                URL,
                 headers=headers,
             )
             response.raise_for_status()

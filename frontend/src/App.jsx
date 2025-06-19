@@ -8,6 +8,8 @@ import { getTredingMovies, updateSearchCount } from "./appwrite.js";
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
+const FASTAPI_BASE_URL = import.meta.env.VITE_FASTAPI_BASE_URL;
+
 const BASE_URL = import.meta.env.VITE_TMDB_BASE_URL;
 const API_OPTIONS = {
   method: "GET",
@@ -37,15 +39,20 @@ const App = () => {
     setIsLoading(true);
     setError("");
     try {
-      const endpoint = query
+      /*const endpoint = query
       ? `${BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
-      : `${BASE_URL}/discover/movie?sort_by=popularity.desc`;
+      : `${BASE_URL}/discover/movie?sort_by=popularity.desc`;*/
+      const endpoint = query
+        ? `${FASTAPI_BASE_URL}movies?search_term=${encodeURIComponent(query)}`
+        : `${FASTAPI_BASE_URL}movies`;
       const response = await fetch(endpoint, API_OPTIONS);
+      console.log(response);
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
+      console.log(data);
 
       if (data.Response === "False") {
         setError(
