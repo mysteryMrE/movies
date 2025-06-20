@@ -11,6 +11,8 @@ import urllib.parse as urlparse
 from appwrite.client import Client
 from appwrite.services.databases import Databases
 from appwrite.query import Query
+import json
+import threading
 
 
 class Movie(BaseModel):
@@ -110,7 +112,9 @@ async def get_movies(search_term: str = None):
             movies = response.json()
         if len(movies["results"]) > 0 and search_term is not None:
             print(f"Updating search count for: {search_term}")
-            update_search_count(search_term, movies["results"][0])
+            threading.Thread(
+                target=update_search_count, args=(search_term, movies["results"][0])
+            ).start()
         return movies
     except httpx.HTTPError as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -159,11 +163,28 @@ def update_search_count(search_term: str, movie: Movie):
                     "count": 1,
                     "movie_id": movie["id"],
                     "poster_url": poster_url,
+                    "movie_json": json.dumps(movie),
                 },
             )
         print("Search count updated successfully")
     except Exception as e:
         print("Error updating search count:", e)
+
+
+# TODO: response_model
+@app.get("/api/movies/trending")
+def get_trending_movies():
+    try:
+        result = database.list_documents(
+            APPWRITE_DATABASE_ID,
+            APPWRITE_COLLECTION_ID,
+            [Query.order_desc("count"), Query.limit(5)],
+        )
+        movies = result["documents"]
+        return movies
+    except Exception as e:
+        print("Error fetching trending movies:", e)
+        raise HTTPException(status_code=500, detail="Error fetching trending movies")
 
 
 if __name__ == "__main__":

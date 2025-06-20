@@ -6,29 +6,14 @@ import MovieCard from "./components/MovieCard.jsx";
 import MovieList from "./components/MovieList.jsx";
 import { useDebounce } from "react-use";
 import { getTredingMovies, updateSearchCount } from "./appwrite.js";
+import TrendingList from "./components/TrendingList.jsx";
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
-  const [trendingMovies, setTrendingMovies] = useState([]);
-
   useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm]);
-
-  useEffect(() => {
-    loadTrendingMovies();
-  }, []);
-
-  const loadTrendingMovies = async () => {
-    try {
-      const movies = await getTredingMovies();
-
-      setTrendingMovies(movies);
-    } catch (error) {
-      console.error("Error loading trending movies:", error);
-    }
-  };
 
   return (
     <main>
@@ -43,24 +28,10 @@ const App = () => {
           <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         </header>
 
-        {trendingMovies.length > 0 && (
-          <section className="trending">
-            <h2>Trending Movies</h2>
-            <ul>
-              {trendingMovies.map((movie, index) => (
-                <li key={movie.$id}>
-                  <p>{index + 1}</p>
-                  <img src={movie.poster_url} alt={movie.title} />
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        <section className="all-movies">
-          <h2>All Movies</h2>
-          <MovieList searchTerm={debouncedSearchTerm} />
-        </section>
+        <TrendingList />
+        
+        <MovieList searchTerm={debouncedSearchTerm} />
+        
       </div>
     </main>
   );
@@ -68,6 +39,7 @@ const App = () => {
   // const [error, setError] = useState(null);
 
   // const [movies, setMovies] = useState([]);
+  // const [trendingMovies, setTrendingMovies] = useState([]);
 
   // const [isLoading, setIsLoading] = useState(false);
   // const API_KEY = import.meta.env.VITE_API_KEY;
@@ -142,6 +114,34 @@ const App = () => {
   //   {
   //     error && <p className="text-red-500">{error}</p>;
   //   }
+  // }
+  // useEffect(() => {
+  //   loadTrendingMovies();
+  // }, []);
+
+  // const loadTrendingMovies = async () => {
+  //   try {
+  //     const movies = await getTredingMovies();
+
+  //     setTrendingMovies(movies);
+  //   } catch (error) {
+  //     console.error("Error loading trending movies:", error);
+  //   }
+  // };
+  // {
+  //   trendingMovies.length > 0 && (
+  //     <section className="trending">
+  //       <h2>Trending Movies</h2>
+  //       <ul>
+  //         {trendingMovies.map((movie, index) => (
+  //           <li key={movie.$id}>
+  //             <p>{index + 1}</p>
+  //             <img src={movie.poster_url} alt={movie.title} />
+  //           </li>
+  //         ))}
+  //       </ul>
+  //     </section>
+  //   );
   // }
 };
 
