@@ -1,18 +1,26 @@
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import Spinner from "./Spinner.jsx";
 import MovieCard from "./MovieCard.jsx";
 
 function MovieList({ searchTerm }) {
+  
   const { data, error, isLoading } = useQuery({
     queryKey: ["movies", searchTerm],
     queryFn: () => fetchMoviesFromFastAPI(searchTerm),
     staleTime: 5 * 60 * 1000,
   });
 
+  useEffect(() => {
+    if(data){
+      console.log(`Fetched movies ${searchTerm}:`, data);
+    }
+  }, [searchTerm, data]);
+
   if (isLoading) return <Spinner />;
   if (error) return <p className="text-red-500">Error: {error.message}</p>;
 
-  console.log("Fetched movies:", data);
+
   return (
     <ul>
       {data.results.map((movie) => (
