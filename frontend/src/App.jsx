@@ -7,6 +7,16 @@ import MovieList from "./components/MovieList.jsx";
 import { useDebounce } from "react-use";
 import { getTredingMovies, updateSearchCount } from "./appwrite.js";
 import TrendingList from "./components/TrendingList.jsx";
+import Menu from "./components/Menu.jsx";
+
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+//import PrivateRoutes from "./utils/PrivateRoutes";
+import { AuthProvider } from "./contexts/AuthContext";
+// import Header from "./components/Header";
+// import Home from "./pages/Home";
+// import Profile from "./pages/Profile";
+// import Login from "./pages/Login";
+// import Register from "./pages/Register";
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -19,19 +29,30 @@ const App = () => {
     <main>
       <div className="pattern" />
       <div className="wrapper">
-        <header>
-          <img src="./hero.png" alt="Hero Banner" />
-          <h1>
-            Find <span className="text-gradient">Movies</span> You'll Enjoy
-            Without the Hassle
-          </h1>
-          <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-        </header>
-
-        <TrendingList />
-        
-        <MovieList searchTerm={debouncedSearchTerm} />
-        
+        <Router>
+          <AuthProvider>
+            <header>
+              <Menu />
+              <img src="./hero.png" alt="Hero Banner" />
+              <h1>
+                Find <span className="text-gradient">Movies</span> You'll Enjoy
+                Without the Hassle
+              </h1>
+              <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+            </header>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <>
+                    <TrendingList />
+                    <MovieList searchTerm={debouncedSearchTerm} />
+                  </>
+                }
+              />
+            </Routes>
+          </AuthProvider>
+        </Router>
       </div>
     </main>
   );

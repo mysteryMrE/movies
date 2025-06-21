@@ -139,6 +139,10 @@
     & .content .year {
       @apply text-gray-100 font-medium text-base;
     }
+    
+    & .heart-btn {
+      @apply ml-auto bg-none border-none cursor-pointer p-0 flex items-center;
+    }
   }
 }
 
