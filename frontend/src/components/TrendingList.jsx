@@ -16,7 +16,7 @@ function TrendingList() {
     ...movie,
     movie_json: movie.movie_json ? JSON.parse(movie.movie_json) : null,
   }));
-  console.log("Trending movies:", movies);
+  //console.log("Trending movies:", movies);
   return (
     <section className="trending">
       <h2>Trending Movies</h2>
