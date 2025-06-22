@@ -1,18 +1,32 @@
-function Menu(){
+import { Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+
+function Menu() {
+    const { user, logoutUser } = useAuth();
+
     return (
         <nav className="menu">
             <ul>
                 <li>
-                    <a href="/">Home</a>
+                    <Link to="/">Home</Link>
                 </li>
-                <li>
-                    <a href="/">Trending</a>
-                </li>
-                <li>
-                    <a href="/">About</a>
-                </li>
+                {user ? (
+                    <>
+                        <li>
+                            <Link to="/favorites">Favorites</Link>
+                        </li>
+                        <li>
+                            <button onClick={logoutUser}>Logout</button>
+                        </li>
+                    </>
+                ) : (
+                    <li>
+                        <Link to="/login">Login</Link>
+                    </li>
+                )}
             </ul>
         </nav>
     );
 }
+
 export default Menu;

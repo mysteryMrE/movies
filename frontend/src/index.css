@@ -49,6 +49,10 @@
 }
 
 @layer components {
+  .login-register-container{
+    @apply text-white
+  }
+
   .pattern {
     @apply bg-hero-pattern w-full h-screen bg-center bg-cover absolute z-0;
   }
