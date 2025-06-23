@@ -124,10 +124,12 @@ APPWRITE_ENDPOINT = os.getenv("APPWRITE_ENDPOINT")
 APPWRITE_PROJECT_ID = os.getenv("APPWRITE_PROJECT_ID")
 APPWRITE_DATABASE_ID = os.getenv("APPWRITE_DATABASE_ID")
 APPWRITE_COLLECTION_ID = os.getenv("APPWRITE_COLLECTION_ID")
+APPWRITE_API_KEY = os.getenv("APPWRITE_API_KEY")
 
 client = Client()
 client.set_endpoint(APPWRITE_ENDPOINT)
 client.set_project(APPWRITE_PROJECT_ID)
+client.set_key(APPWRITE_API_KEY)
 
 database = Databases(client)
 

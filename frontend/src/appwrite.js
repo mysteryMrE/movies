@@ -4,7 +4,7 @@ const PROJECT_ID = import.meta.env.VITE_APPWRITE_PROJECT_ID;
 const COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_ID;
 const APPWRITE_ENDPOINT = import.meta.env.VITE_APPWRITE_ENDPOINT;
 
-import { Client, Databases, Query, ID } from "appwrite";
+import { Client, Databases, Query, ID, Account } from "appwrite";
 
 const client = new Client()
     .setEndpoint(APPWRITE_ENDPOINT)
@@ -44,3 +44,6 @@ export const getTredingMovies = async () => {
         console.error("Error fetching trending movies:", error);
     }
 }
+
+
+export const account = new Account(client);

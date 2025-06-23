@@ -7,6 +7,17 @@ import MovieList from "./components/MovieList.jsx";
 import { useDebounce } from "react-use";
 import { getTredingMovies, updateSearchCount } from "./appwrite.js";
 import TrendingList from "./components/TrendingList.jsx";
+import Menu from "./components/Menu.jsx";
+
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import PrivateRoutes from "./utils/PrivateRoutes";
+import { AuthProvider } from "./contexts/AuthContext";
+import { useLocation } from "react-router-dom";
+// import Header from "./components/Header";
+// import Home from "./pages/Home";
+// import Profile from "./pages/Profile";
+import Login from "./components/Login.jsx";
+import Register from "./components/Register.jsx";
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -15,23 +26,40 @@ const App = () => {
 
   useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm]);
 
+  const location = useLocation();
+
   return (
     <main>
       <div className="pattern" />
       <div className="wrapper">
-        <header>
-          <img src="./hero.png" alt="Hero Banner" />
-          <h1>
-            Find <span className="text-gradient">Movies</span> You'll Enjoy
-            Without the Hassle
-          </h1>
-          <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-        </header>
-
-        <TrendingList />
-        
-        <MovieList searchTerm={debouncedSearchTerm} />
-        
+        <AuthProvider>
+          <header>
+            <Menu />
+            <img src="./hero.png" alt="Hero Banner" />
+            {location.pathname === "/" && (
+              <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+            )}
+          </header>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <>
+                  <TrendingList />
+                  <MovieList searchTerm={debouncedSearchTerm} />
+                </>
+              }
+            />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route element={<PrivateRoutes />}>
+              <Route
+                path="/favorites"
+                element={<h2>Your favorite movies</h2>}
+              />
+            </Route>
+          </Routes>
+        </AuthProvider>
       </div>
     </main>
   );

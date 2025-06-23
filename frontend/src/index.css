@@ -49,6 +49,10 @@
 }
 
 @layer components {
+  .login-register-container{
+    @apply text-white
+  }
+
   .pattern {
     @apply bg-hero-pattern w-full h-screen bg-center bg-cover absolute z-0;
   }
@@ -138,6 +142,10 @@
 
     & .content .year {
       @apply text-gray-100 font-medium text-base;
+    }
+    
+    & .heart-btn {
+      @apply ml-auto bg-none border-none cursor-pointer p-0 flex items-center;
     }
   }
 }
