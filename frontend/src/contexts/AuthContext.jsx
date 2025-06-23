@@ -15,6 +15,10 @@ export const AuthProvider = ({ children }) => {
     checkUserStatus();
   }, []);
 
+  useEffect(() => {
+    console.log("User changed:", user);
+  }, [user]);
+
   const loginUser = async (userInfo) => {
     setLoading(true);
 
@@ -49,7 +53,10 @@ export const AuthProvider = ({ children }) => {
         userInfo.name
       );
 
-      await account.createEmailPasswordSession(userInfo.email, userInfo.password1);
+      await account.createEmailPasswordSession(
+        userInfo.email,
+        userInfo.password1
+      );
       let accountDetails = await account.get();
       setUser(accountDetails);
       navigate("/");
