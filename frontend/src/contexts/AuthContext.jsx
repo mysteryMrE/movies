@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
       if (jwtRefreshInterval.current) clearInterval(jwtRefreshInterval.current);
       jwtRefreshInterval.current = setInterval(() => {
         generateJwt();
-      }, 15 * 60 * 1000);
+      }, 0.5 * 60 * 1000);
     } else {
       if (jwtRefreshInterval.current) clearInterval(jwtRefreshInterval.current);
     }
@@ -92,6 +92,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const jwtResponse = await account.createJWT();
       setJwt(jwtResponse.jwt);
+      console.log("new jwt ", jwtResponse.jwt);
     } catch (error) {
       setJwt(null);
       console.error("JWT generation failed:", error);

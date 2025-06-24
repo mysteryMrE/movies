@@ -22,7 +22,7 @@ export const FavoritesProvider = ({ children }) => {
     if (user){
       refetch();
     }
-  }, [user, jwt]);
+  }, [user]);
 
   // const addFavorite = async (movie) => {
   //   await addFavoriteToDB(movie);
