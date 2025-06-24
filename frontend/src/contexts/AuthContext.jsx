@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useContext } from "react";
+import { createContext, useState, useEffect, useContext, useRef } from "react";
 import { account } from "../appwrite.js";
 import { useNavigate } from "react-router-dom";
 import { ID } from "appwrite";
@@ -11,16 +11,25 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [jwt, setJwt] = useState(null);
+  const jwtRefreshInterval = useRef(null);
 
   useEffect(() => {
     checkUserStatus();
   }, []);
 
   useEffect(() => {
-    console.log("User changed:", user);
     if (user) {
       generateJwt();
+      if (jwtRefreshInterval.current) clearInterval(jwtRefreshInterval.current);
+      jwtRefreshInterval.current = setInterval(() => {
+        generateJwt();
+      }, 15 * 60 * 1000);
+    } else {
+      if (jwtRefreshInterval.current) clearInterval(jwtRefreshInterval.current);
     }
+    return () => {
+      if (jwtRefreshInterval.current) clearInterval(jwtRefreshInterval.current);
+    };
   }, [user]);
 
   const loginUser = async (userInfo) => {
