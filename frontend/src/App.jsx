@@ -18,6 +18,7 @@ import { useLocation } from "react-router-dom";
 // import Profile from "./pages/Profile";
 import Login from "./components/Login.jsx";
 import Register from "./components/Register.jsx";
+import { FavoritesProvider } from "./contexts/FavoritesContext.jsx";
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -33,6 +34,7 @@ const App = () => {
       <div className="pattern" />
       <div className="wrapper">
         <AuthProvider>
+          <FavoritesProvider>
           <header>
             <Menu />
             <img src="./hero.png" alt="Hero Banner" />
@@ -59,6 +61,7 @@ const App = () => {
               />
             </Route>
           </Routes>
+          </FavoritesProvider>
         </AuthProvider>
       </div>
     </main>

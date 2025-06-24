@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }) => {
 
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [jwt, setJwt] = useState(null);
 
   useEffect(() => {
     checkUserStatus();
@@ -17,6 +18,9 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     console.log("User changed:", user);
+    if (user) {
+      generateJwt();
+    }
   }, [user]);
 
   const loginUser = async (userInfo) => {
@@ -40,6 +44,7 @@ export const AuthProvider = ({ children }) => {
   const logoutUser = async () => {
     await account.deleteSession("current");
     setUser(null);
+    setJwt(null);
   };
 
   const registerUser = async (userInfo) => {
@@ -74,9 +79,19 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {}
     setLoading(false);
   };
+  const generateJwt = async () => {
+    try {
+      const jwtResponse = await account.createJWT();
+      setJwt(jwtResponse.jwt);
+    } catch (error) {
+      setJwt(null);
+      console.error("JWT generation failed:", error);
+    }
+  };
 
   const contextData = {
     user,
+    jwt,
     loginUser,
     logoutUser,
     registerUser,

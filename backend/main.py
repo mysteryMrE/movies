@@ -1,5 +1,5 @@
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
@@ -187,6 +187,51 @@ def get_trending_movies():
     except Exception as e:
         print("Error fetching trending movies:", e)
         raise HTTPException(status_code=500, detail="Error fetching trending movies")
+
+
+from appwrite.client import Client
+from appwrite.services.account import Account
+from appwrite.exception import AppwriteException
+
+
+async def get_current_user_id(request: Request):
+    auth_header = request.headers.get("Authorization")
+
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=401, detail="Missing or invalid Authorization header"
+        )
+
+    jwt = auth_header.split(" ")[1]
+
+    try:
+        # Initialize Appwrite client
+        client = Client()
+        client.set_endpoint("https://fra.cloud.appwrite.io/v1")
+        client.set_project(APPWRITE_PROJECT_ID)
+        client.set_jwt(jwt)  # Set the JWT for this request
+
+        # Get account service
+        account = Account(client)
+
+        # Get user account (this validates the JWT)
+        user = account.get()
+
+        return user["$id"]
+
+    except AppwriteException as e:
+        print(f"Appwrite validation failed: {e.message}")
+        raise HTTPException(status_code=401, detail="Invalid JWT")
+
+
+@app.get("/api/favorites")
+async def get_favorites(request: Request, user_id: str = Depends(get_current_user_id)):
+    # Now you have the authenticated user's ID!
+    # Query Appwrite for this user's favorites only
+    # Example (pseudo-code):
+    # favorites = database.list_documents(..., [Query.equal("userId", user_id)])
+    print("user_id: " + user_id)
+    return {"favorites": []}  # Replace with actual favorites
 
 
 if __name__ == "__main__":
