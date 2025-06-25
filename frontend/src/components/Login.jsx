@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
+import { UseAuth } from '../contexts/AuthContext'
 
 
 const Login = () => {
-  const {user, loginUser} = useAuth()
+  const {user, loginUser} = UseAuth()
   const navigate = useNavigate()
 
   const loginForm = useRef(null)

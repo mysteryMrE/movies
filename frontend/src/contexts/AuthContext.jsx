@@ -5,7 +5,7 @@ import { ID } from "appwrite";
 
 const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
+const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
       if (jwtRefreshInterval.current) clearInterval(jwtRefreshInterval.current);
       jwtRefreshInterval.current = setInterval(() => {
         generateJwt();
-      }, 0.5 * 60 * 1000);
+      }, 10 * 60 * 1000);
     } else {
       if (jwtRefreshInterval.current) clearInterval(jwtRefreshInterval.current);
     }
@@ -43,6 +43,7 @@ export const AuthProvider = ({ children }) => {
         userInfo.password
       );
       let accountDetails = await account.get();
+      await generateJwt();
       setUser(accountDetails);
     } catch (error) {
       console.error(error);
@@ -72,6 +73,7 @@ export const AuthProvider = ({ children }) => {
         userInfo.password1
       );
       let accountDetails = await account.get();
+      await generateJwt();
       setUser(accountDetails);
       navigate("/");
     } catch (error) {
@@ -115,9 +117,7 @@ export const AuthProvider = ({ children }) => {
 };
 
 //Custom Hook
-const useAuth = () => {
+const UseAuth = () => {
   return useContext(AuthContext);
 };
-export { useAuth };
-
-export default AuthContext;
+export { UseAuth, AuthProvider };

@@ -1,10 +1,10 @@
 import React, { useRef } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { UseAuth } from "../contexts/AuthContext";
 
 const Register = () => {
   const registerForm = useRef(null);
-  const { registerUser } = useAuth();
+  const { registerUser } = UseAuth();
 
   const handleSubmit = (e) => {
     e.preventDefault();

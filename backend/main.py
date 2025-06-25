@@ -226,12 +226,81 @@ async def get_current_user_id(request: Request):
 
 @app.get("/api/favorites")
 async def get_favorites(request: Request, user_id: str = Depends(get_current_user_id)):
-    # Now you have the authenticated user's ID!
-    # Query Appwrite for this user's favorites only
-    # Example (pseudo-code):
-    # favorites = database.list_documents(..., [Query.equal("userId", user_id)])
     print("user_id: " + user_id)
-    return {"favorites": []}  # Replace with actual favorites
+    try:
+        result = database.list_documents(
+            APPWRITE_DATABASE_ID,
+            "685996b7001270f656eb",
+            [Query.equal("user_id", user_id)],
+        )
+        movies = result["documents"][0]["favorite_ids"]
+        print(movies)
+        return {"favorites": movies}
+    except Exception as e:
+        print("Error updating search count:", e)
+    return {"favorites": "something went wrong"}
+
+
+class FavoriteRequest(BaseModel):
+    movieName: str
+
+
+# Depends(get_current_user_id)
+@app.post("/api/favorites")
+async def add_favorite(
+    request: Request, body: FavoriteRequest, user_id: str = "685845f800158229181c"
+):
+    print("user_id: " + user_id)
+    try:
+        result = database.list_documents(
+            APPWRITE_DATABASE_ID,
+            "685996b7001270f656eb",
+            [Query.equal("user_id", user_id)],
+        )
+        document = result["documents"][0]
+        movies = document["favorite_ids"]
+        movies.append(body.movieName)
+        print(movies)
+        print(document)
+        database.update_document(
+            APPWRITE_DATABASE_ID,
+            "685996b7001270f656eb",
+            document["$id"],
+            {"favorite_ids": movies},
+        )
+        return movies
+    except Exception as e:
+        print("Error adding movie:", e)
+    return {"favorites": "something went wrong"}
+
+
+# Depends(get_current_user_id)
+@app.delete("/api/favorites")
+async def remove_favorite(
+    request: Request, body: FavoriteRequest, user_id: str = "685845f800158229181c"
+):
+    print("user_id: " + user_id)
+    try:
+        result = database.list_documents(
+            APPWRITE_DATABASE_ID,
+            "685996b7001270f656eb",
+            [Query.equal("user_id", user_id)],
+        )
+        document = result["documents"][0]
+        movies = document["favorite_ids"]
+        movies.remove(body.movieName)
+        print(movies)
+        print(document)
+        database.update_document(
+            APPWRITE_DATABASE_ID,
+            "685996b7001270f656eb",
+            document["$id"],
+            {"favorite_ids": movies},
+        )
+        return movies
+    except Exception as e:
+        print("Error removing movie:", e)
+    return {"favorites": "something went wrong"}
 
 
 if __name__ == "__main__":
