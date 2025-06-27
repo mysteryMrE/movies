@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { UseAuth } from "../contexts/AuthContext";
 
 function Menu() {
-    const { user, logoutUser } = useAuth();
+    const { user, logoutUser } = UseAuth();
 
     return (
         <nav className="menu">
@@ -16,7 +16,7 @@ function Menu() {
                             <Link to="/favorites">Favorites</Link>
                         </li>
                         <li>
-                            <button onClick={logoutUser}>Logout</button>
+                            <button className = "log-button" onClick={logoutUser}>Logout</button>
                         </li>
                     </>
                 ) : (

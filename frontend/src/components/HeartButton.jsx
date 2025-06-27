@@ -1,11 +1,8 @@
-import { useState } from "react";
-
-function HeartButton() {
-  const [liked, setLiked] = useState(false);
+function HeartButton({ liked, onClick }) {
   return (
     <button
       className="heart-btn"
-      onClick={() => setLiked((prev) => !prev)}
+      onClick={onClick}
       aria-label={liked ? "Unlike" : "Like"}
     >
       <svg
@@ -22,4 +19,5 @@ function HeartButton() {
     </button>
   );
 }
+
 export default HeartButton;

@@ -3,6 +3,7 @@ import Search from "./components/Search.jsx";
 import { useState, useEffect, use } from "react";
 import Spinner from "./components/Spinner.jsx";
 import MovieCard from "./components/MovieCard.jsx";
+import FavoriteMovies from "./components/FavoriteMovies.jsx";
 import MovieList from "./components/MovieList.jsx";
 import { useDebounce } from "react-use";
 import { getTredingMovies, updateSearchCount } from "./appwrite.js";
@@ -18,6 +19,7 @@ import { useLocation } from "react-router-dom";
 // import Profile from "./pages/Profile";
 import Login from "./components/Login.jsx";
 import Register from "./components/Register.jsx";
+import { FavoritesProvider } from "./contexts/FavoritesContext.jsx";
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -33,32 +35,31 @@ const App = () => {
       <div className="pattern" />
       <div className="wrapper">
         <AuthProvider>
-          <header>
-            <Menu />
-            <img src="./hero.png" alt="Hero Banner" />
-            {location.pathname === "/" && (
-              <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-            )}
-          </header>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <>
-                  <TrendingList />
-                  <MovieList searchTerm={debouncedSearchTerm} />
-                </>
-              }
-            />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route element={<PrivateRoutes />}>
+          <FavoritesProvider>
+            <header>
+              <Menu />
+              <img src="./hero.png" alt="Hero Banner" />
+              {location.pathname === "/" && (
+                <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+              )}
+            </header>
+            <Routes>
               <Route
-                path="/favorites"
-                element={<h2>Your favorite movies</h2>}
+                path="/"
+                element={
+                  <>
+                    <TrendingList />
+                    <MovieList searchTerm={debouncedSearchTerm} />
+                  </>
+                }
               />
-            </Route>
-          </Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route element={<PrivateRoutes />}>
+                <Route path="/favorites" element={<FavoriteMovies />} />
+              </Route>
+            </Routes>
+          </FavoritesProvider>
         </AuthProvider>
       </div>
     </main>

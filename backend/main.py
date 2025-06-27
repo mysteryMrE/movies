@@ -1,5 +1,5 @@
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
@@ -187,6 +187,187 @@ def get_trending_movies():
     except Exception as e:
         print("Error fetching trending movies:", e)
         raise HTTPException(status_code=500, detail="Error fetching trending movies")
+
+
+from appwrite.client import Client
+from appwrite.services.account import Account
+from appwrite.exception import AppwriteException
+
+
+async def get_current_user_id(request: Request):
+    auth_header = request.headers.get("Authorization")
+
+    # for testing purposes
+    if not auth_header:
+        print("No auth header found, using default test user")
+        return "685845f800158229181c"  # Your test user ID
+
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=401, detail="Missing or invalid Authorization header"
+        )
+
+    jwt = auth_header.split(" ")[1]
+
+    try:
+        # Initialize Appwrite client
+        client = Client()
+        client.set_endpoint("https://fra.cloud.appwrite.io/v1")
+        client.set_project(APPWRITE_PROJECT_ID)
+        client.set_jwt(jwt)  # Set the JWT for this request
+
+        # Get account service
+        account = Account(client)
+
+        # Get user account (this validates the JWT)
+        user = account.get()
+
+        return user["$id"]
+
+    except AppwriteException as e:
+        print(f"Appwrite validation failed: {e.message}")
+        raise HTTPException(status_code=401, detail="Invalid JWT")
+
+
+class FavoriteMovie(BaseModel):
+    id: int
+    title: str
+    vote_average: float
+    poster_path: str
+    release_date: str
+    original_language: str
+    ranking: int
+
+
+class FavoriteResponse(BaseModel):
+    favorites: List[FavoriteMovie]
+
+
+@app.get("/api/favorites", response_model=FavoriteResponse)
+async def get_favorites(request: Request, user_id: str = Depends(get_current_user_id)):
+    try:
+        result = database.list_documents(
+            APPWRITE_DATABASE_ID,
+            "685996b7001270f656eb",
+            [Query.equal("user_id", user_id)],
+        )
+
+        movies = []
+        for doc in result["documents"]:
+            movie = {
+                "id": doc["movie_id"],
+                "title": doc["title"],
+                "vote_average": doc.get("vote_average", 0),
+                "poster_path": doc.get("poster_path", ""),
+                "release_date": doc.get("release_date", ""),
+                "original_language": doc.get("original_language", "unknown"),
+                "ranking": doc.get("ranking", 0),
+            }
+            movies.append(movie)
+
+        print(f"Found {len(movies)} favorites for user {user_id}")
+        return {"favorites": movies}
+    except Exception as e:
+        print("Error fetching favorites:", e)
+    return {"favorites": []}
+
+
+class FavoriteMoviePost(BaseModel):
+    id: int
+    title: str
+    vote_average: Optional[float] = 0
+    poster_path: Optional[str] = ""
+    release_date: Optional[str] = ""
+    original_language: Optional[str] = "unknown"
+    ranking: Optional[int] = 1
+
+
+class FavoritePostRequestBody(BaseModel):
+    movie: FavoriteMoviePost
+
+
+@app.post("/api/favorites")
+async def add_favorite(
+    request: Request,
+    body: FavoritePostRequestBody,
+    user_id: str = Depends(get_current_user_id),
+):
+    try:
+        movie = body.movie  # This is a FavoriteMoviePost object
+
+        existing = database.list_documents(
+            APPWRITE_DATABASE_ID,
+            "685996b7001270f656eb",
+            [Query.equal("user_id", user_id), Query.equal("movie_id", movie.id)],
+        )
+
+        if len(existing["documents"]) > 0:
+            print("Movie already in favorites")
+            return {"message": "Movie already in favorites"}
+
+        new_favorite = {
+            "user_id": user_id,
+            "movie_id": movie.id,
+            "title": movie.title,
+            "vote_average": movie.vote_average,
+            "poster_path": movie.poster_path,
+            "release_date": movie.release_date,
+            "original_language": movie.original_language,
+            "ranking": movie.ranking,
+        }
+
+        created_doc = database.create_document(
+            APPWRITE_DATABASE_ID, "685996b7001270f656eb", "unique()", new_favorite
+        )
+
+        print(f"Added favorite: {movie.title}")
+        return {"message": "Movie added to favorites", "document": created_doc}
+
+    except Exception as e:
+        print("Error adding movie:", e)
+    return {"error": "Something went wrong"}
+
+
+class FavoriteMovieDelete(BaseModel):
+    id: int
+
+
+class FavoritePostRequestBody(BaseModel):
+    movie: FavoriteMovieDelete
+
+
+@app.delete("/api/favorites")
+async def remove_favorite(
+    request: Request,
+    body: FavoritePostRequestBody,
+    user_id: str = Depends(get_current_user_id),
+):
+    try:
+        movie = body.movie
+
+        # Find the document to delete
+        result = database.list_documents(
+            APPWRITE_DATABASE_ID,
+            "685996b7001270f656eb",
+            [Query.equal("user_id", user_id), Query.equal("movie_id", movie.id)],
+        )
+
+        if len(result["documents"]) == 0:
+            print("Movie not found in favorites")
+            return {"message": "Movie not found in favorites"}
+
+        # Delete the document
+        document_to_delete = result["documents"][0]
+        database.delete_document(
+            APPWRITE_DATABASE_ID, "685996b7001270f656eb", document_to_delete["$id"]
+        )
+
+        print(f"Removed favorite: {movie.id}")
+        return {"message": "Movie removed from favorites"}
+
+    except Exception as e:
+        print("Error removing movie:", e)
+    return {"error": "Something went wrong"}
 
 
 if __name__ == "__main__":

@@ -61,6 +61,16 @@
     @apply px-5 py-12 xs:p-10 max-w-7xl mx-auto flex flex-col relative z-10;
   }
 
+  .favorite-li{
+    @apply text-white;
+  }
+  .menu {
+    @apply text-white;
+  }
+  .log-button{
+    @apply cursor-pointer;
+  }
+
   .trending {
     @apply mt-20;
 

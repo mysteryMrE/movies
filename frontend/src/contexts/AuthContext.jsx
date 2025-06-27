@@ -1,19 +1,36 @@
-import { createContext, useState, useEffect, useContext } from "react";
+import { createContext, useState, useEffect, useContext, useRef } from "react";
 import { account } from "../appwrite.js";
 import { useNavigate } from "react-router-dom";
 import { ID } from "appwrite";
 
 const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
+const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [jwt, setJwt] = useState(null);
+  const jwtRefreshInterval = useRef(null);
 
   useEffect(() => {
     checkUserStatus();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      generateJwt();
+      if (jwtRefreshInterval.current) clearInterval(jwtRefreshInterval.current);
+      jwtRefreshInterval.current = setInterval(() => {
+        generateJwt();
+      }, 10 * 60 * 1000);
+    } else {
+      if (jwtRefreshInterval.current) clearInterval(jwtRefreshInterval.current);
+    }
+    return () => {
+      if (jwtRefreshInterval.current) clearInterval(jwtRefreshInterval.current);
+    };
+  }, [user]);
 
   const loginUser = async (userInfo) => {
     setLoading(true);
@@ -26,6 +43,7 @@ export const AuthProvider = ({ children }) => {
         userInfo.password
       );
       let accountDetails = await account.get();
+      await generateJwt();
       setUser(accountDetails);
     } catch (error) {
       console.error(error);
@@ -36,6 +54,7 @@ export const AuthProvider = ({ children }) => {
   const logoutUser = async () => {
     await account.deleteSession("current");
     setUser(null);
+    setJwt(null);
   };
 
   const registerUser = async (userInfo) => {
@@ -49,8 +68,12 @@ export const AuthProvider = ({ children }) => {
         userInfo.name
       );
 
-      await account.createEmailPasswordSession(userInfo.email, userInfo.password1);
+      await account.createEmailPasswordSession(
+        userInfo.email,
+        userInfo.password1
+      );
       let accountDetails = await account.get();
+      await generateJwt();
       setUser(accountDetails);
       navigate("/");
     } catch (error) {
@@ -67,9 +90,20 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {}
     setLoading(false);
   };
+  const generateJwt = async () => {
+    try {
+      const jwtResponse = await account.createJWT();
+      setJwt(jwtResponse.jwt);
+      console.log("new jwt ", jwtResponse.jwt);
+    } catch (error) {
+      setJwt(null);
+      console.error("JWT generation failed:", error);
+    }
+  };
 
   const contextData = {
     user,
+    jwt,
     loginUser,
     logoutUser,
     registerUser,
@@ -83,9 +117,7 @@ export const AuthProvider = ({ children }) => {
 };
 
 //Custom Hook
-const useAuth = () => {
+const UseAuth = () => {
   return useContext(AuthContext);
 };
-export { useAuth };
-
-export default AuthContext;
+export { UseAuth, AuthProvider };
