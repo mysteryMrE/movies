@@ -1,10 +1,10 @@
-import { useState } from "react";
 import HeartButton from "./HeartButton.jsx";
+import { UseAuth } from "../contexts/AuthContext.jsx";
 
 const MovieCard = ({
-  movie: { title, vote_average, poster_path, release_date, original_language },
+  movie: { id, title, vote_average, poster_path, release_date, original_language },
 }) => {
-  const [liked, setLiked] = useState(false);
+  const { user } = UseAuth();
 
   return (
     <div className="movie-card">
@@ -29,7 +29,7 @@ const MovieCard = ({
           <p className="year">
             {release_date ? release_date.split("-")[0] : "N/A"}
           </p>
-          <HeartButton/>
+          {user && (<HeartButton name={title} id = {id}/>)}
         </div>
       </div>
     </div>

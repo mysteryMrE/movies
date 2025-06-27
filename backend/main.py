@@ -197,6 +197,11 @@ from appwrite.exception import AppwriteException
 async def get_current_user_id(request: Request):
     auth_header = request.headers.get("Authorization")
 
+    # for testing purposes
+    if not auth_header:
+        print("No auth header found, using default test user")
+        return "685845f800158229181c"  # Your test user ID
+
     if not auth_header or not auth_header.startswith("Bearer "):
         raise HTTPException(
             status_code=401, detail="Missing or invalid Authorization header"
@@ -224,83 +229,129 @@ async def get_current_user_id(request: Request):
         raise HTTPException(status_code=401, detail="Invalid JWT")
 
 
-@app.get("/api/favorites")
+class FavoriteMovie(BaseModel):
+    id: int
+    title: str
+    vote_average: float
+    poster_path: str
+    release_date: str
+    original_language: str
+    ranking: int
+
+
+class FavoriteResponse(BaseModel):
+    favorites: List[FavoriteMovie]
+
+
+@app.get("/api/favorites", response_model=FavoriteResponse)
 async def get_favorites(request: Request, user_id: str = Depends(get_current_user_id)):
-    print("user_id: " + user_id)
     try:
         result = database.list_documents(
             APPWRITE_DATABASE_ID,
             "685996b7001270f656eb",
             [Query.equal("user_id", user_id)],
         )
-        movies = result["documents"][0]["favorite_ids"]
-        print(movies)
+
+        movies = []
+        for doc in result["documents"]:
+            movie = {
+                "id": doc["movie_id"],
+                "title": doc["title"],
+                "vote_average": doc.get("vote_average", 0),
+                "poster_path": doc.get("poster_path", ""),
+                "release_date": doc.get("release_date", ""),
+                "original_language": doc.get("original_language", "unknown"),
+                "ranking": doc.get("ranking", 0),
+            }
+            movies.append(movie)
+
+        print(f"Found {len(movies)} favorites for user {user_id}")
         return {"favorites": movies}
     except Exception as e:
-        print("Error updating search count:", e)
-    return {"favorites": "something went wrong"}
+        print("Error fetching favorites:", e)
+    return {"favorites": []}
 
 
-class FavoriteRequest(BaseModel):
-    movieName: str
+class FavoriteRequestBody(BaseModel):
+    movie: dict
 
 
-# Depends(get_current_user_id)
 @app.post("/api/favorites")
 async def add_favorite(
-    request: Request, body: FavoriteRequest, user_id: str = "685845f800158229181c"
+    request: Request,
+    body: FavoriteRequestBody,
+    user_id: str = Depends(get_current_user_id),
 ):
-    print("user_id: " + user_id)
     try:
-        result = database.list_documents(
+        movie = body.movie
+
+        # Check if this movie is already favorited by this user
+        existing = database.list_documents(
             APPWRITE_DATABASE_ID,
             "685996b7001270f656eb",
-            [Query.equal("user_id", user_id)],
+            [Query.equal("user_id", user_id), Query.equal("movie_id", movie["id"])],
         )
-        document = result["documents"][0]
-        movies = document["favorite_ids"]
-        movies.append(body.movieName)
-        print(movies)
-        print(document)
-        database.update_document(
-            APPWRITE_DATABASE_ID,
-            "685996b7001270f656eb",
-            document["$id"],
-            {"favorite_ids": movies},
+
+        if len(existing["documents"]) > 0:
+            print("Movie already in favorites")
+            return {"message": "Movie already in favorites"}
+
+        # Create new document for this favorite
+        new_favorite = {
+            "user_id": user_id,
+            "movie_id": movie["id"],
+            "title": movie["title"],
+            "vote_average": movie.get("vote_average", 0),
+            "poster_path": movie.get("poster_path", ""),
+            "release_date": movie.get("release_date", ""),
+            "original_language": movie.get("original_language", "unknown"),
+            "ranking": movie.get("ranking", 1),
+        }
+
+        created_doc = database.create_document(
+            APPWRITE_DATABASE_ID, "685996b7001270f656eb", "unique()", new_favorite
         )
-        return movies
+
+        print(f"Added favorite: {movie['title']}")
+        return {"message": "Movie added to favorites", "document": created_doc}
+
     except Exception as e:
         print("Error adding movie:", e)
-    return {"favorites": "something went wrong"}
+    return {"error": "Something went wrong"}
 
 
-# Depends(get_current_user_id)
 @app.delete("/api/favorites")
 async def remove_favorite(
-    request: Request, body: FavoriteRequest, user_id: str = "685845f800158229181c"
+    request: Request,
+    body: FavoriteRequestBody,
+    user_id: str = Depends(get_current_user_id),
 ):
-    print("user_id: " + user_id)
     try:
+        movie = body.movie
+
+        # Find the document to delete
         result = database.list_documents(
             APPWRITE_DATABASE_ID,
             "685996b7001270f656eb",
-            [Query.equal("user_id", user_id)],
+            [Query.equal("user_id", user_id), Query.equal("movie_id", movie["id"])],
         )
-        document = result["documents"][0]
-        movies = document["favorite_ids"]
-        movies.remove(body.movieName)
-        print(movies)
-        print(document)
-        database.update_document(
-            APPWRITE_DATABASE_ID,
-            "685996b7001270f656eb",
-            document["$id"],
-            {"favorite_ids": movies},
+
+        if len(result["documents"]) == 0:
+            print("Movie not found in favorites")
+            return {"message": "Movie not found in favorites"}
+
+        # Delete the document
+        document_to_delete = result["documents"][0]
+        database.delete_document(
+            APPWRITE_DATABASE_ID, "685996b7001270f656eb", document_to_delete["$id"]
         )
-        return movies
+
+        print(f"Removed favorite: {movie['title']}")
+        return {"message": "Movie removed from favorites"}
+
     except Exception as e:
         print("Error removing movie:", e)
-    return {"favorites": "something went wrong"}
+    return {"error": "Something went wrong"}
 
 
 if __name__ == "__main__":
