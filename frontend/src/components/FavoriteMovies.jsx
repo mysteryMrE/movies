@@ -1,22 +1,27 @@
 import { UseFavorites } from "../contexts/FavoritesContext";
+import MovieCard from "./MovieCard";
 
 function FavoriteMovies() {
-  const { favorites, isLoading } = UseFavorites();
+  const { favorites, isLoading, removeFavorite } = UseFavorites();
 
   if (isLoading) return <div className="favorite-li" >Loading...</div>;
 
-  const favoriteList = favorites?.favorites ?? [];
+  const favoriteList = favorites ?? [];
 
   return (
-    <div>
+    <section className="all-movies">
       <h2>Your favorites</h2>
       <ul>
         {favoriteList.map((favorite) => (
-          <li className="favorite-li" key={`favorite-${favorite}`}>{favorite}</li>
+          <li className="favorite-li" key={`favoriteli-${favorite.id}`}>
+            <MovieCard key={`favoritecard-${favorite.id}`} movieId={favorite.id} movie = {favorite}/>
+          </li>
         ))}
       </ul>
-    </div>
+    </section>
   );
 }
 
 export default FavoriteMovies;
+
+

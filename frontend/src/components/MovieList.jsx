@@ -24,7 +24,9 @@ function MovieList({ searchTerm }) {
       <h2>All Movies</h2>
       <ul>
         {data.results.map((movie) => (
-          <MovieCard key={`list-${movie.id}`} movie={movie}></MovieCard>
+          <li key={`list-${movie.id}`} className="movie-item">
+            <MovieCard key={`listcard-${movie.id}`} movie={movie}></MovieCard>
+          </li>
         ))}
       </ul>
     </section>

@@ -35,7 +35,7 @@ const FavoritesProvider = ({ children }) => {
     refetch();
   };
 
-  const isFavorite = (movie) => favorites.favorites.some( m => m === movie);
+  const isFavorite = (movie) => {return favorites.some( m => {return m.id === movie.id})};
 
   return (
     <FavoritesContext.Provider
@@ -78,11 +78,12 @@ async function getFavoritesFromDB(userID, jwt) {
   console.log("userid: ", userID);
   if (!response.ok) throw new Error("Failed to fetch trending movies");
   const data = await response.json();
+  console.log("new data: ", data["favorites"]);
   if (data.Response === "False") {
     throw new Error(data.Error || "Failed to format json.");
   }
   console.log("hello ",data)
-  return data;
+  return data["favorites"];
 }
 
 async function addFavoriteToDB(movie, jwt) {
@@ -95,7 +96,7 @@ async function addFavoriteToDB(movie, jwt) {
         Authorization: `Bearer ${jwt}`,
       },
       credentials: "include",
-      body: JSON.stringify({ movieName: movie }),
+      body: JSON.stringify({ movie: movie }),
     }
   );
   if (!response.ok) throw new Error("Failed to add movie");
@@ -116,7 +117,7 @@ async function removeFavoriteFromDB(movie, jwt) {
         Authorization: `Bearer ${jwt}`,
       },
       credentials: "include",
-      body: JSON.stringify({ movieName: movie }),
+      body: JSON.stringify({ movie: movie }),
     }
   );
   if (!response.ok) throw new Error("Failed to remove movie");

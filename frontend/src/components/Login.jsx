@@ -57,7 +57,7 @@ const Login = () => {
                 <input 
                   type="submit" 
                   value="Login"
-                  className="btn"
+                  className="btn log-button"
                   />
 
             </div>

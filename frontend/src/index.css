@@ -64,6 +64,12 @@
   .favorite-li{
     @apply text-white;
   }
+  .menu {
+    @apply text-white;
+  }
+  .log-button{
+    @apply cursor-pointer;
+  }
 
   .trending {
     @apply mt-20;

@@ -1,23 +1,8 @@
-import { useState } from "react";
-import { UseFavorites } from "../contexts/FavoritesContext";
-
-function HeartButton({name, id}) {
-  const { addFavorite, removeFavorite, isFavorite } = UseFavorites();
-  const [liked, setLiked] = useState(isFavorite(name));
-  
-  const handleClick = () => {
-    if (liked) {
-      removeFavorite(name);
-    } else {
-      addFavorite(name);
-    }
-    setLiked(prev => !prev);
-  }
-
+function HeartButton({ liked, onClick }) {
   return (
     <button
       className="heart-btn"
-      onClick={() => handleClick()}
+      onClick={onClick}
       aria-label={liked ? "Unlike" : "Like"}
     >
       <svg
@@ -34,4 +19,5 @@ function HeartButton({name, id}) {
     </button>
   );
 }
+
 export default HeartButton;

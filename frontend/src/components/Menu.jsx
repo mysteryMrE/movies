@@ -16,7 +16,7 @@ function Menu() {
                             <Link to="/favorites">Favorites</Link>
                         </li>
                         <li>
-                            <button onClick={logoutUser}>Logout</button>
+                            <button className = "log-button" onClick={logoutUser}>Logout</button>
                         </li>
                     </>
                 ) : (

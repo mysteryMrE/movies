@@ -1,10 +1,26 @@
+import { useState } from "react";
 import HeartButton from "./HeartButton.jsx";
 import { UseAuth } from "../contexts/AuthContext.jsx";
+import { UseFavorites } from "../contexts/FavoritesContext.jsx";
 
 const MovieCard = ({
   movie: { id, title, vote_average, poster_path, release_date, original_language },
 }) => {
   const { user } = UseAuth();
+  const { addFavorite, removeFavorite, isFavorite } = UseFavorites();
+  const movie = { id, title, vote_average, poster_path, release_date, original_language };
+  const [liked, setLiked] = useState(user ? isFavorite(movie) : false);
+
+  
+
+  const handleHeartClick = () => {
+    if (liked) {
+      removeFavorite(movie);
+    } else {
+      addFavorite(movie);
+    }
+    setLiked(prev => !prev);
+  };
 
   return (
     <div className="movie-card">
@@ -29,7 +45,12 @@ const MovieCard = ({
           <p className="year">
             {release_date ? release_date.split("-")[0] : "N/A"}
           </p>
-          {user && (<HeartButton name={title} id = {id}/>)}
+          {user && (
+            <HeartButton 
+              liked={liked} 
+              onClick={handleHeartClick} 
+            />
+          )}
         </div>
       </div>
     </div>

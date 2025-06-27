@@ -272,47 +272,55 @@ async def get_favorites(request: Request, user_id: str = Depends(get_current_use
     return {"favorites": []}
 
 
-class FavoriteRequestBody(BaseModel):
-    movie: dict
+class FavoriteMoviePost(BaseModel):
+    id: int
+    title: str
+    vote_average: Optional[float] = 0
+    poster_path: Optional[str] = ""
+    release_date: Optional[str] = ""
+    original_language: Optional[str] = "unknown"
+    ranking: Optional[int] = 1
+
+
+class FavoritePostRequestBody(BaseModel):
+    movie: FavoriteMoviePost
 
 
 @app.post("/api/favorites")
 async def add_favorite(
     request: Request,
-    body: FavoriteRequestBody,
+    body: FavoritePostRequestBody,
     user_id: str = Depends(get_current_user_id),
 ):
     try:
-        movie = body.movie
+        movie = body.movie  # This is a FavoriteMoviePost object
 
-        # Check if this movie is already favorited by this user
         existing = database.list_documents(
             APPWRITE_DATABASE_ID,
             "685996b7001270f656eb",
-            [Query.equal("user_id", user_id), Query.equal("movie_id", movie["id"])],
+            [Query.equal("user_id", user_id), Query.equal("movie_id", movie.id)],
         )
 
         if len(existing["documents"]) > 0:
             print("Movie already in favorites")
             return {"message": "Movie already in favorites"}
 
-        # Create new document for this favorite
         new_favorite = {
             "user_id": user_id,
-            "movie_id": movie["id"],
-            "title": movie["title"],
-            "vote_average": movie.get("vote_average", 0),
-            "poster_path": movie.get("poster_path", ""),
-            "release_date": movie.get("release_date", ""),
-            "original_language": movie.get("original_language", "unknown"),
-            "ranking": movie.get("ranking", 1),
+            "movie_id": movie.id,
+            "title": movie.title,
+            "vote_average": movie.vote_average,
+            "poster_path": movie.poster_path,
+            "release_date": movie.release_date,
+            "original_language": movie.original_language,
+            "ranking": movie.ranking,
         }
 
         created_doc = database.create_document(
             APPWRITE_DATABASE_ID, "685996b7001270f656eb", "unique()", new_favorite
         )
 
-        print(f"Added favorite: {movie['title']}")
+        print(f"Added favorite: {movie.title}")
         return {"message": "Movie added to favorites", "document": created_doc}
 
     except Exception as e:
@@ -320,10 +328,18 @@ async def add_favorite(
     return {"error": "Something went wrong"}
 
 
+class FavoriteMovieDelete(BaseModel):
+    id: int
+
+
+class FavoritePostRequestBody(BaseModel):
+    movie: FavoriteMovieDelete
+
+
 @app.delete("/api/favorites")
 async def remove_favorite(
     request: Request,
-    body: FavoriteRequestBody,
+    body: FavoritePostRequestBody,
     user_id: str = Depends(get_current_user_id),
 ):
     try:
@@ -333,7 +349,7 @@ async def remove_favorite(
         result = database.list_documents(
             APPWRITE_DATABASE_ID,
             "685996b7001270f656eb",
-            [Query.equal("user_id", user_id), Query.equal("movie_id", movie["id"])],
+            [Query.equal("user_id", user_id), Query.equal("movie_id", movie.id)],
         )
 
         if len(result["documents"]) == 0:
@@ -346,7 +362,7 @@ async def remove_favorite(
             APPWRITE_DATABASE_ID, "685996b7001270f656eb", document_to_delete["$id"]
         )
 
-        print(f"Removed favorite: {movie['title']}")
+        print(f"Removed favorite: {movie.id}")
         return {"message": "Movie removed from favorites"}
 
     except Exception as e:
