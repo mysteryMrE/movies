@@ -50,7 +50,129 @@
 
 @layer components {
   .login-register-container{
-    @apply text-white
+    @apply text-white;
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 40px 30px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  }
+
+  .form-field-wrapper {
+    margin-bottom: 24px;
+  }
+
+  .form-field-wrapper label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .form-field-wrapper input[type="text"],
+  .form-field-wrapper input[type="email"],
+  .form-field-wrapper input[type="password"] {
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    color: white;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+  }
+
+  .form-field-wrapper input[type="text"]:focus,
+  .form-field-wrapper input[type="email"]:focus,
+  .form-field-wrapper input[type="password"]:focus {
+    outline: none;
+    border-color: rgba(171, 139, 255, 0.6);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 3px rgba(171, 139, 255, 0.2);
+  }
+
+  .form-field-wrapper input[type="text"]:disabled,
+  .form-field-wrapper input[type="email"]:disabled,
+  .form-field-wrapper input[type="password"]:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .form-field-wrapper input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .form-field-wrapper input[type="submit"] {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #AB8BFF, #D6C7FF);
+    border: none;
+    border-radius: 12px;
+    color: #030014;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 8px;
+  }
+
+  .form-field-wrapper input[type="submit"]:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(171, 139, 255, 0.4);
+  }
+
+  .form-field-wrapper input[type="submit"]:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .form-field-wrapper input[type="submit"]:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .auth-link {
+    text-align: center;
+    margin-top: 24px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+  }
+
+  .auth-link a {
+    color: #AB8BFF;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+
+  .auth-link a:hover {
+    color: #D6C7FF;
+  }
+
+  .error-message {
+    background: rgba(255, 71, 87, 0.1);
+    border: 1px solid rgba(255, 71, 87, 0.3);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    color: #ff4757;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    padding: 20px;
+    margin-top: -10vh;
   }
 
   .pattern {
@@ -66,7 +188,82 @@
   }
   .menu {
     @apply text-white;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 20;
   }
+
+  .menu ul {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .menu li {
+    position: relative;
+  }
+
+  .menu a, .menu button {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 12px 24px;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+    min-width: 80px;
+  }
+
+  .menu a:hover, .menu button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
+  }
+
+  .menu a:active, .menu button:active {
+    transform: translateY(0);
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 640px) {
+    .menu {
+      top: 15px;
+      right: 15px;
+    }
+    
+    .menu ul {
+      gap: 12px;
+    }
+    
+    .menu a, .menu button {
+      font-size: 14px;
+      padding: 10px 18px;
+      min-width: 70px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .menu ul {
+      gap: 8px;
+    }
+    
+    .menu a, .menu button {
+      font-size: 13px;
+      padding: 8px 14px;
+      min-width: 60px;
+    }
+  }
+
   .log-button{
     @apply cursor-pointer;
   }
@@ -75,11 +272,13 @@
     @apply mt-20;
 
     & ul {
-      @apply flex flex-row overflow-y-auto gap-5 -mt-10 w-full hide-scrollbar;
+      @apply flex flex-row overflow-x-auto gap-5 -mt-10 w-full hide-scrollbar pb-4;
+      scroll-behavior: smooth;
+      touch-action: pan-x;
     }
 
     & ul li {
-      @apply min-w-[230px] flex flex-row items-center;
+      @apply min-w-[230px] flex flex-row items-center cursor-pointer transition-transform duration-300 hover:scale-105;
     }
 
     & ul li p {
@@ -87,7 +286,7 @@
     }
 
     & ul li img {
-      @apply w-[127px] h-[163px] rounded-lg object-cover -ml-3.5;
+      @apply w-[127px] h-[163px] rounded-lg object-cover -ml-3.5 shadow-lg transition-shadow duration-300 hover:shadow-xl;
     }
   }
 
@@ -116,7 +315,7 @@
   }
 
   .movie-card {
-    @apply bg-dark-100 p-5 rounded-2xl shadow-inner shadow-light-100/10;
+    @apply bg-dark-100 p-5 rounded-2xl shadow-inner shadow-light-100/10 transition-all duration-300 hover:shadow-light-100/20 hover:transform hover:scale-[1.02];
 
     & img {
       @apply rounded-lg h-auto w-full;
@@ -155,7 +354,7 @@
     }
     
     & .heart-btn {
-      @apply ml-auto bg-none border-none cursor-pointer p-0 flex items-center;
+      @apply ml-auto bg-none border-none cursor-pointer p-1 flex items-center rounded-full transition-all duration-300 hover:bg-white/10 hover:scale-110 active:scale-95;
     }
   }
 }
