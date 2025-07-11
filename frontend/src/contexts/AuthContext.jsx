@@ -11,6 +11,7 @@ const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [jwt, setJwt] = useState(null);
+  const [authError, setAuthError] = useState(null);
   const jwtRefreshInterval = useRef(null);
 
   useEffect(() => {
@@ -34,6 +35,7 @@ const AuthProvider = ({ children }) => {
 
   const loginUser = async (userInfo) => {
     setLoading(true);
+    setAuthError(null);
 
     console.log("userInfo", userInfo);
 
@@ -45,8 +47,10 @@ const AuthProvider = ({ children }) => {
       let accountDetails = await account.get();
       await generateJwt();
       setUser(accountDetails);
+      navigate("/");
     } catch (error) {
       console.error(error);
+      setAuthError(error.message || "Login failed. Please check your credentials.");
     }
     setLoading(false);
   };
@@ -59,6 +63,7 @@ const AuthProvider = ({ children }) => {
 
   const registerUser = async (userInfo) => {
     setLoading(true);
+    setAuthError(null);
 
     try {
       let response = await account.create(
@@ -78,6 +83,7 @@ const AuthProvider = ({ children }) => {
       navigate("/");
     } catch (error) {
       console.error(error);
+      setAuthError(error.message || "Registration failed. Please try again.");
     }
 
     setLoading(false);
@@ -104,6 +110,9 @@ const AuthProvider = ({ children }) => {
   const contextData = {
     user,
     jwt,
+    loading,
+    authError,
+    setAuthError,
     loginUser,
     logoutUser,
     registerUser,
