@@ -87,7 +87,7 @@ if env_path.exists():
 else:
     print("No .env file found, using environment variables from system/Docker")
 
-TMDB_BASE_URL = "https://api.themoviedb.org/3"
+TMDB_BASE_URL = os.getenv("TMDB_BASE_URL")
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 
 if not TMDB_API_KEY:

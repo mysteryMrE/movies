@@ -8,6 +8,7 @@ services:
     environment:
       # Load from your local .env file (for development)
       - TMDB_API_KEY=${TMDB_API_KEY}
+      - TMDB_BASE_URL=${TMDB_BASE_URL}
       - APPWRITE_ENDPOINT=${APPWRITE_ENDPOINT}
       - APPWRITE_PROJECT_ID=${APPWRITE_PROJECT_ID}
       - APPWRITE_DATABASE_ID=${APPWRITE_DATABASE_ID}
