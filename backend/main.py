@@ -40,13 +40,12 @@ class Movies(BaseModel):
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:5173",
-]
+# Combine multiple regex patterns into a single pattern using alternation (|)
+origins_regex = r"^(http://localhost.*|http://frontend:.*|https://.*\.run\.app|https://.*\.cloudfunctions\.net)$"
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origin_regex=origins_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -80,12 +79,28 @@ print(f"Base directory: {BASE_DIR}")
 # Explicitly point to .env file
 env_path = BASE_DIR / ".env"
 
-# Load environment variables
-load_dotenv(env_path)
-
+# Load environment variables from .env file (if it exists)
+# In Docker, environment variables will be passed at runtime instead
+if env_path.exists():
+    print(f"Loading environment variables from {env_path}")
+    load_dotenv(env_path)
+else:
+    print("No .env file found, using environment variables from system/Docker")
 
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
+
+if not TMDB_API_KEY:
+    raise ValueError("TMDB_API_KEY environment variable is required")
+
+# Appwrite configuration
+APPWRITE_ENDPOINT = os.getenv("APPWRITE_ENDPOINT")
+APPWRITE_PROJECT_ID = os.getenv("APPWRITE_PROJECT_ID")
+APPWRITE_DATABASE_ID = os.getenv("APPWRITE_DATABASE_ID")
+APPWRITE_COLLECTION_ID = os.getenv("APPWRITE_COLLECTION_ID")
+APPWRITE_API_KEY = os.getenv("APPWRITE_API_KEY")
+
+print("Environment variables loaded successfully")
 
 
 headers = {
@@ -371,4 +386,4 @@ async def remove_favorite(
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8080)

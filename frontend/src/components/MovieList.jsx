@@ -3,6 +3,12 @@ import { useEffect } from "react";
 import Spinner from "./Spinner.jsx";
 import MovieCard from "./MovieCard.jsx";
 
+// console.log('🐛 Debug env vars: movie', {
+//   VITE_FASTAPI_BASE_URL: import.meta.env.VITE_FASTAPI_BASE_URL,
+//   MODE: import.meta.env.MODE,
+//   all: import.meta.env
+// });
+
 function MovieList({ searchTerm }) {
   const { data, error, isLoading } = useQuery({
     queryKey: ["movies", searchTerm],
@@ -37,12 +43,17 @@ function MovieList({ searchTerm }) {
   );
 }
 
-const FASTAPI_BASE_URL = import.meta.env.VITE_FASTAPI_BASE_URL;
+const FASTAPI_BASE_URL = import.meta.env.VITE_FASTAPI_BASE_URL || "http://localhost:8080";
+// console.log('🐛 Debug env vars: movie 2', {
+//   VITE_FASTAPI_BASE_URL: FASTAPI_BASE_URL,
+//   MODE: import.meta.env.MODE,
+//   all: import.meta.env
+// });
 
 const fetchMovies = async (query = "") => {
   const url = query
-    ? `${FASTAPI_BASE_URL}movies?search_term=${encodeURIComponent(query)}`
-    : `${FASTAPI_BASE_URL}movies`;
+    ? `${FASTAPI_BASE_URL}/api/movies?search_term=${encodeURIComponent(query)}`
+    : `${FASTAPI_BASE_URL}/api/movies`;
   const response = await fetch(url);
   if (!response.ok) throw new Error("Network response was not ok");
   const data = await response.json();

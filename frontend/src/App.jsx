@@ -1,12 +1,9 @@
 import "./App.css";
 import Search from "./components/Search.jsx";
 import { useState, useEffect, use } from "react";
-import Spinner from "./components/Spinner.jsx";
-import MovieCard from "./components/MovieCard.jsx";
 import FavoriteMovies from "./components/FavoriteMovies.jsx";
 import MovieList from "./components/MovieList.jsx";
 import { useDebounce } from "react-use";
-import { getTredingMovies, updateSearchCount } from "./appwrite.js";
 import TrendingList from "./components/TrendingList.jsx";
 import Menu from "./components/Menu.jsx";
 

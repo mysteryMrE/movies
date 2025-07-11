@@ -2,6 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { useRef, useEffect } from "react";
 import Spinner from "./Spinner.jsx";
 
+// console.log('🐛 Debug env vars: trending', {
+//   VITE_FASTAPI_BASE_URL: import.meta.env.VITE_FASTAPI_BASE_URL,
+//   MODE: import.meta.env.MODE,
+//   all: import.meta.env
+// });
+
 function TrendingList() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["trending-movies"],
@@ -113,10 +119,10 @@ function TrendingList() {
   );
 }
 
-const FASTAPI_BASE_URL = import.meta.env.VITE_FASTAPI_BASE_URL;
+const FASTAPI_BASE_URL = import.meta.env.VITE_FASTAPI_BASE_URL || "http://localhost:8080";
 
 const fetchTrendingMovies = async () => {
-  const response = await fetch(`${FASTAPI_BASE_URL}movies/trending`);
+  const response = await fetch(`${FASTAPI_BASE_URL}/api/movies/trending`);
   if (!response.ok) throw new Error("Failed to fetch trending movies");
   const data = await response.json();
   if (data.Response === "False") {

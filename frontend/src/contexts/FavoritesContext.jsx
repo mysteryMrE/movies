@@ -2,9 +2,11 @@ import { createContext, useContext } from "react";
 //import { addFavoriteToDB, removeFavoriteFromDB, getFavoritesFromDB } from "../appwrite"; // implement getFavoritesFromDB
 import { UseAuth } from "./AuthContext"; // to get the current user
 import { useQuery } from "@tanstack/react-query";
-import Spinner from "../components/Spinner";
+//import Spinner from "../components/Spinner";
 
 const FavoritesContext = createContext();
+
+const VITE_FASTAPI_BASE_URL = import.meta.env.VITE_FASTAPI_BASE_URL || "http://localhost:8080";
 
 const FavoritesProvider = ({ children }) => {
   const { user, jwt } = UseAuth();
@@ -66,7 +68,7 @@ export { UseFavorites, FavoritesProvider };
 
 async function getFavoritesFromDB(userID, jwt) {
   const response = await fetch(
-    `${import.meta.env.VITE_FASTAPI_BASE_URL}favorites`,
+    `${VITE_FASTAPI_BASE_URL}/api/favorites`,
     {
       method: "GET",
       headers: {
@@ -89,7 +91,7 @@ async function getFavoritesFromDB(userID, jwt) {
 
 async function addFavoriteToDB(movie, jwt) {
   const response = await fetch(
-    `${import.meta.env.VITE_FASTAPI_BASE_URL}favorites`,
+    `${VITE_FASTAPI_BASE_URL}/api/favorites`,
     {
       method: "POST",
       headers: {
@@ -110,7 +112,7 @@ async function addFavoriteToDB(movie, jwt) {
 
 async function removeFavoriteFromDB(movie, jwt) {
   const response = await fetch(
-    `${import.meta.env.VITE_FASTAPI_BASE_URL}favorites`,
+    `${VITE_FASTAPI_BASE_URL}/api/favorites`,
     {
       method: "DELETE",
       headers: {

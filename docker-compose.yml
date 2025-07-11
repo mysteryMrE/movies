@@ -1,0 +1,35 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"  # Fixed port mapping
+    environment:
+      # Load from your local .env file (for development)
+      - TMDB_API_KEY=${TMDB_API_KEY}
+      - APPWRITE_ENDPOINT=${APPWRITE_ENDPOINT}
+      - APPWRITE_PROJECT_ID=${APPWRITE_PROJECT_ID}
+      - APPWRITE_DATABASE_ID=${APPWRITE_DATABASE_ID}
+      - APPWRITE_COLLECTION_ID=${APPWRITE_COLLECTION_ID}
+      - APPWRITE_API_KEY=${APPWRITE_API_KEY}
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:8080"
+    depends_on:
+      - backend
+    environment:
+      # If your React app needs any environment variables
+      - VITE_FASTAPI_BASE_URL=${FAST_API_BASE_URL}
+      - VITE_APPWRITE_PROJECT_ID=${APPWRITE_PROJECT_ID}
+      - VITE_APPWRITE_ENDPOINT=${APPWRITE_ENDPOINT}
+    restart: unless-stopped
+
+networks:
+  default:
+    name: movie-app-network
