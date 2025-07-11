@@ -4,7 +4,7 @@ import { UseAuth } from "../contexts/AuthContext";
 
 const Register = () => {
   const registerForm = useRef(null);
-  const { registerUser, authError, setAuthError, loading } = UseAuth();
+  const { registerUser, authError, setAuthError, loading, user } = UseAuth();
   
   // Initialize from sessionStorage to persist through remounts
   const [name, setName] = useState(() => sessionStorage.getItem('registerName') || '');
@@ -148,7 +148,7 @@ const Register = () => {
           <div className="form-field-wrapper">
             <input 
               type="submit" 
-              value={loading ? "Creating Account..." : "Register"} 
+              value={loading ? "Creating Account..." : ( user ? "Navigating" : "Register")} 
               className="btn log-button"
               disabled={loading}
             />

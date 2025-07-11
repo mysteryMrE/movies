@@ -21,19 +21,19 @@ function TrendingList() {
 
     const handleMouseDown = (e) => {
       isDown = true;
-      container.style.cursor = 'grabbing';
+      container.style.cursor = "grabbing";
       startX = e.pageX - container.offsetLeft;
       scrollLeft = container.scrollLeft;
     };
 
     const handleMouseLeave = () => {
       isDown = false;
-      container.style.cursor = 'grab';
+      container.style.cursor = "grab";
     };
 
     const handleMouseUp = () => {
       isDown = false;
-      container.style.cursor = 'grab';
+      container.style.cursor = "grab";
     };
 
     const handleMouseMove = (e) => {
@@ -44,10 +44,10 @@ function TrendingList() {
       container.scrollLeft = scrollLeft - walk;
     };
 
-    container.addEventListener('mousedown', handleMouseDown);
-    container.addEventListener('mouseleave', handleMouseLeave);
-    container.addEventListener('mouseup', handleMouseUp);
-    container.addEventListener('mousemove', handleMouseMove);
+    container.addEventListener("mousedown", handleMouseDown);
+    container.addEventListener("mouseleave", handleMouseLeave);
+    container.addEventListener("mouseup", handleMouseUp);
+    container.addEventListener("mousemove", handleMouseMove);
 
     // Touch events for mobile
     let startTouchX;
@@ -69,51 +69,49 @@ function TrendingList() {
       startTouchX = null;
     };
 
-    container.addEventListener('touchstart', handleTouchStart);
-    container.addEventListener('touchmove', handleTouchMove);
-    container.addEventListener('touchend', handleTouchEnd);
+    container.addEventListener("touchstart", handleTouchStart);
+    container.addEventListener("touchmove", handleTouchMove);
+    container.addEventListener("touchend", handleTouchEnd);
 
     // Set initial cursor style
-    container.style.cursor = 'grab';
+    container.style.cursor = "grab";
 
     return () => {
-      container.removeEventListener('mousedown', handleMouseDown);
-      container.removeEventListener('mouseleave', handleMouseLeave);
-      container.removeEventListener('mouseup', handleMouseUp);
-      container.removeEventListener('mousemove', handleMouseMove);
-      container.removeEventListener('touchstart', handleTouchStart);
-      container.removeEventListener('touchmove', handleTouchMove);
-      container.removeEventListener('touchend', handleTouchEnd);
+      container.removeEventListener("mousedown", handleMouseDown);
+      container.removeEventListener("mouseleave", handleMouseLeave);
+      container.removeEventListener("mouseup", handleMouseUp);
+      container.removeEventListener("mousemove", handleMouseMove);
+      container.removeEventListener("touchstart", handleTouchStart);
+      container.removeEventListener("touchmove", handleTouchMove);
+      container.removeEventListener("touchend", handleTouchEnd);
     };
   }, [data]);
 
-  if (isLoading) return <Spinner />;
   if (error) return <p className="text-red-500">Error: {error.message}</p>;
   if (!data || data.length === 0) return <p>No trending movies found.</p>;
-
   const movies = data.map((movie) => ({
     ...movie,
     movie_json: movie.movie_json ? JSON.parse(movie.movie_json) : null,
   }));
-  
+
   return (
     <section className="trending">
-      <h2>Trending Movies</h2>
-      <ul ref={scrollContainerRef} style={{ userSelect: 'none' }}>
-        {data.map((movie, index) => (
-          <li key={movie.$id}>
-            <p>{index + 1}</p>
-            <img 
-              src={movie.poster_url} 
-              alt={movie.title}
-              draggable={false}
-            />
-          </li>
-        ))}
-      </ul>
+      <h2>Trending Movies</h2>ű
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <ul ref={scrollContainerRef} style={{ userSelect: "none" }}>
+          {data.map((movie, index) => (
+            <li key={movie.$id}>
+              <p>{index + 1}</p>
+              <img src={movie.poster_url} alt={movie.title} draggable={false} />
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
-};
+}
 
 const FASTAPI_BASE_URL = import.meta.env.VITE_FASTAPI_BASE_URL;
 

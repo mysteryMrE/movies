@@ -16,22 +16,26 @@ function MovieList({ searchTerm }) {
     }
   }, [searchTerm, data]);
 
-  if (isLoading) return <Spinner />;
+  //if (isLoading) return <Spinner />;
   if (error) return <p className="text-red-500">Error: {error.message}</p>;
 
   return (
     <section className="all-movies">
       <h2>All Movies</h2>
-      <ul>
-        {data.results.map((movie) => (
-          <li key={`list-${movie.id}`} className="movie-item">
-            <MovieCard key={`listcard-${movie.id}`} movie={movie}></MovieCard>
-          </li>
-        ))}
-      </ul>
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <ul>
+          {data.results.map((movie) => (
+            <li key={`list-${movie.id}`} className="movie-item">
+              <MovieCard key={`listcard-${movie.id}`} movie={movie}></MovieCard>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
-};
+}
 
 const FASTAPI_BASE_URL = import.meta.env.VITE_FASTAPI_BASE_URL;
 
