@@ -14,6 +14,7 @@ const MovieCard = ({
   
 
   const handleHeartClick = () => {
+    if (!user) console.log("You need to log in to like/unlike a movie. (don't know how you called this funciton btw)");
     if (liked) {
       removeFavorite(movie);
     } else {

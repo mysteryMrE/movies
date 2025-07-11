@@ -48,13 +48,14 @@ const FavoritesProvider = ({ children }) => {
         error,
       }}
     >
-      {isLoading ? (
+      {/*isLoading ? (
         <Spinner />
       ) : error ? (
         <p className="text-red-500">Error: {error.message}</p>
       ) : (
         children
-      )}
+      )*/}
+      {children}
     </FavoritesContext.Provider>
   );
 };

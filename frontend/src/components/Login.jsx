@@ -103,7 +103,7 @@ const Login = () => {
             <div className="form-field-wrapper">
                 <input 
                   type="submit" 
-                  value={loading ? "Logging in..." : "Login"}
+                  value={loading ? "Logging in..." : ( user ? "Navigating" : "Login")}
                   className="btn log-button"
                   disabled={loading}
                   />

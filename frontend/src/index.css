@@ -164,10 +164,20 @@
     color: #ff4757;
     font-size: 14px;
     text-align: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .spinner{
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
   }
 
   .container {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 60vh;
@@ -307,10 +317,19 @@
   }
 
   .all-movies {
-    @apply space-y-9;
+    @apply space-y-9 text-white text-center ;
 
     & ul {
       @apply grid grid-cols-1 gap-5 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4;
+    }
+
+    & .favorite-none{
+      @apply text-white text-center mt-10;
+      font-size: 18px;
+      font-weight: 500;
+    }
+    & .favorite-title{
+      @apply text-5xl -mt-10;
     }
   }
 
