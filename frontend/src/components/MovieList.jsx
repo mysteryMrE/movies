@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import Spinner from "./Spinner.jsx";
 import MovieCard from "./MovieCard.jsx";
+import { config } from "../config.js";
 
 // console.log('🐛 Debug env vars: movie', {
 //   VITE_FASTAPI_BASE_URL: import.meta.env.VITE_FASTAPI_BASE_URL,
@@ -43,7 +44,7 @@ function MovieList({ searchTerm }) {
   );
 }
 
-const FASTAPI_BASE_URL = import.meta.env.VITE_FASTAPI_BASE_URL || "http://localhost:8080";
+const FASTAPI_BASE_URL = config.fastapiBaseUrl;
 // console.log('🐛 Debug env vars: movie 2', {
 //   VITE_FASTAPI_BASE_URL: FASTAPI_BASE_URL,
 //   MODE: import.meta.env.MODE,

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useEffect } from "react";
 import Spinner from "./Spinner.jsx";
+import { config } from "../config.js";
 
 // console.log('🐛 Debug env vars: trending', {
 //   VITE_FASTAPI_BASE_URL: import.meta.env.VITE_FASTAPI_BASE_URL,
@@ -119,7 +120,7 @@ function TrendingList() {
   );
 }
 
-const FASTAPI_BASE_URL = import.meta.env.VITE_FASTAPI_BASE_URL || "http://localhost:8080";
+const FASTAPI_BASE_URL = config.fastapiBaseUrl;
 
 const fetchTrendingMovies = async () => {
   const response = await fetch(`${FASTAPI_BASE_URL}/api/movies/trending`);

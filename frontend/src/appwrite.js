@@ -1,14 +1,49 @@
 
-const PROJECT_ID = import.meta.env.VITE_APPWRITE_PROJECT_ID || "6851780b002c90986037";
-const APPWRITE_ENDPOINT = import.meta.env.VITE_APPWRITE_ENDPOINT || "https://fra.cloud.appwrite.io/v1";
 
-import { Client, Databases, Query, ID, Account } from "appwrite";
 
-const client = new Client()
-    .setEndpoint(APPWRITE_ENDPOINT)
-    .setProject(PROJECT_ID);
 
-export const account = new Account(client);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //const database = new Databases(client);

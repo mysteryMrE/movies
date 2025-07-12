@@ -3,10 +3,11 @@ import { createContext, useContext } from "react";
 import { UseAuth } from "./AuthContext"; // to get the current user
 import { useQuery } from "@tanstack/react-query";
 //import Spinner from "../components/Spinner";
+import {config} from "../config";
 
 const FavoritesContext = createContext();
 
-const VITE_FASTAPI_BASE_URL = import.meta.env.VITE_FASTAPI_BASE_URL || "http://localhost:8080";
+const VITE_FASTAPI_BASE_URL = config.fastapiBaseUrl;
 
 const FavoritesProvider = ({ children }) => {
   const { user, jwt } = UseAuth();

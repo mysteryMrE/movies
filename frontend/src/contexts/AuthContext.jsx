@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useContext, useRef } from "react";
-import { account } from "../appwrite.js";
+import { config } from '../config.js';
 import { useNavigate } from "react-router-dom";
 import { ID } from "appwrite";
 
@@ -8,6 +8,8 @@ const AuthContext = createContext();
 const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
+  const account = config.appwriteAccount;
+  
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [jwt, setJwt] = useState(null);
