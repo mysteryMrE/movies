@@ -46,6 +46,7 @@ origins_regex = r"^(http://localhost.*|http://frontend:.*|https://.*\.run\.app|h
 app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=origins_regex,
+    # allow_origins=["*"],  # Allow all origins for testing
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -386,4 +387,6 @@ async def remove_favorite(
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    # Cloud Run sets PORT environment variable
+    port = int(os.environ.get("PORT", 8080))
+    uvicorn.run(app, host="0.0.0.0", port=port)
