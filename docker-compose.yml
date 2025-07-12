@@ -26,9 +26,9 @@ services:
       - backend
     environment:
       # If your React app needs any environment variables
-      - VITE_FASTAPI_BASE_URL=${FAST_API_BASE_URL}
-      - VITE_APPWRITE_PROJECT_ID=${APPWRITE_PROJECT_ID}
-      - VITE_APPWRITE_ENDPOINT=${APPWRITE_ENDPOINT}
+      - FASTAPI_BASE_URL=${FAST_API_BASE_URL}
+      - APPWRITE_PROJECT_ID=${APPWRITE_PROJECT_ID}
+      - APPWRITE_ENDPOINT=${APPWRITE_ENDPOINT}
     restart: unless-stopped
 
 networks:

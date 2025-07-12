@@ -5,10 +5,10 @@ function getConfig() {
   console.log("🐛 Debug env vars:", window.APP_CONFIG);
   if (window.APP_CONFIG) {
     return {
-      appwriteUrl: window.APP_CONFIG.VITE_APPWRITE_URL,
+      appwriteUrl: window.APP_CONFIG.VITE_APPWRITE_ENDPOINT,
       appwriteProjectId: window.APP_CONFIG.VITE_APPWRITE_PROJECT_ID,
       fastapiBaseUrl: window.APP_CONFIG.VITE_FASTAPI_BASE_URL,
-      appwriteAccount: new Account(new Client().setEndpoint(window.APP_CONFIG.VITE_APPWRITE_URL).setProject(window.APP_CONFIG.VITE_APPWRITE_PROJECT_ID))
+      appwriteAccount: new Account(new Client().setEndpoint(window.APP_CONFIG.VITE_APPWRITE_ENDPOINT).setProject(window.APP_CONFIG.VITE_APPWRITE_PROJECT_ID))
     };
   } else {
     return {

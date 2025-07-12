@@ -19,8 +19,11 @@ RUN npm run build
 # Install serve to serve the production build
 RUN npm install -g serve
 
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
+
 # Expose port 8080 (Cloud Run expects this)
 EXPOSE 8080
 
 # Start the production server on port 8080
-CMD ["serve", "-s", "dist", "-l", "8080"]
+ENTRYPOINT ["./entrypoint.sh"]
