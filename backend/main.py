@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict
 import os
 import httpx
 from dotenv import load_dotenv
@@ -13,6 +13,18 @@ from appwrite.services.databases import Databases
 from appwrite.query import Query
 import json
 import threading
+from fastapi import WebSocket, WebSocketDisconnect
+from datetime import datetime
+from websocket_manager import manager
+import logging
+
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+# TODO: what is this logger
+# TODO: replace legacy typing with modern | None and lowercase types
 
 
 class Movie(BaseModel):
@@ -45,8 +57,8 @@ origins_regex = r"^(http://localhost.*|http://frontend:.*|https://.*\.run\.app|h
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=origins_regex,
-    # allow_origins=["*"],  # Allow all origins for testing
+    # allow_origin_regex=origins_regex,
+    allow_origins=["*"],  # Allow all origins for testing
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -384,6 +396,40 @@ async def remove_favorite(
     except Exception as e:
         print("Error removing movie:", e)
     return {"error": "Something went wrong"}
+
+
+# websockets
+@app.websocket("/ws/{user_id}")
+async def websocket_endpoint(websocket: WebSocket, user_id: str):
+    await manager.connect(websocket, user_id)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            try:
+                message = json.loads(data)
+                message_type = message.get("type")
+                if message_type == "ping":
+                    await manager.send_personal_message(
+                        {"type": "pong", "timestamp": message.get("timestamp")}, user_id
+                    )
+                elif message_type == "favorite_movie":
+                    movie = message.get("movie")
+                    if movie:
+                        await manager.handle_favorite_action(user_id, movie)
+            except json.JSONDecodeError:
+                logger.error(f"Invalid JSON received from {user_id}: {data}")
+            except Exception as e:
+                logger.error(f"Error processing message from {user_id}: {e}")
+    except WebSocketDisconnect:
+        manager.disconnect(user_id)
+
+
+@app.get("/api/ws/status")
+async def websocket_status():
+    return {
+        "active_connections": len(manager.active_connections),
+        "connected_users": list(manager.active_connections.keys()),
+    }
 
 
 if __name__ == "__main__":
