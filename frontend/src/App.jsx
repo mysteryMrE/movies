@@ -1,9 +1,9 @@
 import "./App.css";
 import Search from "./components/Search.jsx";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, useRef } from "react";
 import FavoriteMovies from "./components/FavoriteMovies.jsx";
 import MovieList from "./components/MovieList.jsx";
-import { useDebounce } from "react-use";
+import { useDebounce, useInterval } from "react-use";
 import TrendingList from "./components/TrendingList.jsx";
 import Menu from "./components/Menu.jsx";
 
@@ -19,6 +19,44 @@ import Register from "./components/Register.jsx";
 import { FavoritesProvider } from "./contexts/FavoritesContext.jsx";
 
 const App = () => {
+  const wsRef = useRef(null);
+
+  useEffect(() => {
+    const ws = new WebSocket(`ws://localhost:8080/ws/${Date.now()}`);
+    
+    ws.onopen = () => {
+      console.log("WebSocket connection established");
+      ws.send(JSON.stringify({ type: "ping", timestamp: Date.now() }));
+    };
+    ws.onmessage = (event) => {
+      console.log("Received:", JSON.parse(event.data));
+    };
+    wsRef.current = ws;
+    return () => {
+      if (wsRef.current) {
+        console.log("Closing WebSocket on cleanup:", wsRef.current.url);
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+    };
+  }, []);
+
+  useInterval(() => {
+    const ws = wsRef.current;
+    if (ws){
+      ws.send(
+      JSON.stringify({
+        type: "favorite_movie",
+        movie: {
+          id: 123,
+          title: "Test Movie",
+          vote_average: 8.0,
+        },
+      })
+    );
+    }
+  }, 5000);
+
   const [searchTerm, setSearchTerm] = useState("");
 
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
