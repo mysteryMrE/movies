@@ -1,6 +1,6 @@
 import "./App.css";
 import Search from "./components/Search.jsx";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, use } from "react";
 import FavoriteMovies from "./components/FavoriteMovies.jsx";
 import MovieList from "./components/MovieList.jsx";
 import { useDebounce, useInterval } from "react-use";
@@ -17,46 +17,45 @@ import { useLocation } from "react-router-dom";
 import Login from "./components/Login.jsx";
 import Register from "./components/Register.jsx";
 import { FavoritesProvider } from "./contexts/FavoritesContext.jsx";
+import { webSocketService } from "./utils/WebSocketService.js";
 
 const App = () => {
-  const wsRef = useRef(null);
+  
+  const wssRef = useRef(null);
+
+  const [webSocketState, setWebSocketState] = useState(false);
 
   useEffect(() => {
-    const ws = new WebSocket(`ws://localhost:8080/ws/${Date.now()}`);
-    
-    ws.onopen = () => {
-      console.log("WebSocket connection established");
-      ws.send(JSON.stringify({ type: "ping", timestamp: Date.now() }));
-    };
-    ws.onmessage = (event) => {
-      console.log("Received:", JSON.parse(event.data));
-    };
-    wsRef.current = ws;
+    if (!webSocketState) { if (wssRef.current)wssRef.current.disconnect(); wssRef.current=null;return};
+    const wss = webSocketService;
+    wssRef.current = wss;
+    wssRef.current.connect();
     return () => {
-      if (wsRef.current) {
-        console.log("Closing WebSocket on cleanup:", wsRef.current.url);
-        wsRef.current.close();
-        wsRef.current = null;
+      if (wssRef.current) {
+        console.log("Closing WebSocket on cleanup");
+        wssRef.current.disconnect();
+        wssRef.current = null;
       }
     };
-  }, []);
+  }, [webSocketState]);
 
   useInterval(() => {
-    const ws = wsRef.current;
-    if (ws){
-      ws.send(
-      JSON.stringify({
+    if (wssRef.current && wssRef.current.isConnected()) {
+      wssRef.current.send(
+      {
         type: "favorite_movie",
         movie: {
           id: 123,
           title: "Test Movie",
           vote_average: 8.0,
         },
-      })
-    );
+      }
+      );
     }
   }, 5000);
 
+
+  
   const [searchTerm, setSearchTerm] = useState("");
 
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
@@ -72,6 +71,9 @@ const App = () => {
         <AuthProvider>
           <FavoritesProvider>
             <header>
+              <button onClick={() => setWebSocketState(ws => !ws)}>
+                {webSocketState ? "Disconnect" : "Connect"}
+              </button>
               <Menu />
               <img src="./hero.png" alt="Hero Banner" />
               {location.pathname === "/" && (

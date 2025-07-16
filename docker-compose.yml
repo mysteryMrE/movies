@@ -25,10 +25,10 @@ services:
     depends_on:
       - backend
     environment:
-      # If your React app needs any environment variables
-      - FASTAPI_BASE_URL=${FAST_API_BASE_URL}
+      - FASTAPI_BASE_URL=${FASTAPI_BASE_URL}
       - APPWRITE_PROJECT_ID=${APPWRITE_PROJECT_ID}
       - APPWRITE_ENDPOINT=${APPWRITE_ENDPOINT}
+      - FASTAPI_BASE_SOCKET=${FASTAPI_BASE_SOCKET}
     restart: unless-stopped
 
 networks:

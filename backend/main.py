@@ -57,8 +57,8 @@ origins_regex = r"^(http://localhost.*|http://frontend:.*|https://.*\.run\.app|h
 
 app.add_middleware(
     CORSMiddleware,
-    # allow_origin_regex=origins_regex,
-    allow_origins=["*"],  # Allow all origins for testing
+    allow_origin_regex=origins_regex,
+    # allow_origins=["*"],  # Allow all origins for testing
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -419,9 +419,9 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
             except json.JSONDecodeError:
                 logger.error(f"Invalid JSON received from {user_id}: {data}")
             except Exception as e:
-                logger.error(f"Error processing message from {user_id}: {e}")
+                logger.error(f"Error processing message from {user_id}:")
     except WebSocketDisconnect:
-        manager.disconnect(user_id)
+        await manager.disconnect(user_id)
 
 
 @app.get("/api/ws/status")
