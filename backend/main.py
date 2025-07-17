@@ -414,8 +414,9 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
                     )
                 elif message_type == "favorite_movie":
                     movie = message.get("movie")
+                    user_name = message.get("user_name", "Unknown User")
                     if movie:
-                        await manager.handle_favorite_action(user_id, movie)
+                        await manager.handle_favorite_action(user_id, movie, user_name)
             except json.JSONDecodeError:
                 logger.error(f"Invalid JSON received from {user_id}: {data}")
             except Exception as e:

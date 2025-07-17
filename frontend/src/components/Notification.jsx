@@ -1,20 +1,34 @@
 import { UseWebSocket } from "../contexts/WebSocketContext";
-import { useInterval } from "react-use";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
-const Notification = ( ) =>
-{
-  const { popFirstMessage } = UseWebSocket();
+const Notification = () => {
+  const { popFirstMessage, messageQueue } = UseWebSocket();
   const [message, setMessage] = useState("");
+  const draining = useRef(false);
 
-  useInterval(() => {
-    const nextMessage = popFirstMessage();
-    setMessage(nextMessage);
-  }, 2000);
+  useEffect(() => {
+    if (!draining.current && messageQueue.length > 0) {
+      draining.current = true;
+
+      const loop = async () => {
+        let currentMessage;
+        
+        while ((currentMessage = popFirstMessage()) !== null) {
+          setMessage(currentMessage);
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+        }
+
+        setMessage(null);
+        draining.current = false;
+      };
+
+      loop();
+    }
+  }, [messageQueue]);
 
   return (
-    message ? <p className ="notification" >{message}</p> : <></>
+    message ? <p className="notification">{JSON.stringify(message)}</p> : <></>
   );
-}
+};
 
 export default Notification;

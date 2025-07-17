@@ -12,14 +12,14 @@ class WebSocketService {
         this.connected = false;
     }
 
-    connect(){
+    connect(user_id){
         if (this.connecting || this.connected) {
             console.warn("WebSocket is already connecting or connected.");
             return;
         }
 
         this.connecting = true;
-        this.ws = new WebSocket(`${config.fastapiBaseSocket}/${Date.now()}`);
+        this.ws = new WebSocket(`${config.fastapiBaseSocket}/${user_id}`);
 
         this.ws.onopen = () => {
             console.log("WebSocket connection established.");
@@ -31,7 +31,7 @@ class WebSocketService {
 
         this.ws.onmessage = (event) => {
             const data = JSON.parse(JSON.stringify(event.data));
-            console.log("Message received:", JSON.parse(data));
+            //console.log("Message received:", JSON.parse(data));
         };
 
         this.ws.onclose = () => {

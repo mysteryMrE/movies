@@ -84,28 +84,25 @@ class ConnectionManager:
 
         return len(self.active_connections) - len(disconnected_users) - 1
 
-    async def handle_favorite_action(self, user_id: str, movie_data: dict):
+    async def handle_favorite_action(
+        self, user_id: str, movie_data: dict, user_name: str
+    ):
         try:
             # Create notification message
             notification = {
                 "type": "new_favorite",
-                "message": f"🎬 {user_id} just favorited '{movie_data['title']}'!",
-                "data": {
-                    "user_id": user_id,
-                    "movie": movie_data,
-                    "timestamp": str(datetime.now()),
-                },
+                "message": f"🎬 {user_name} just favorited '{movie_data['title']}'!",
             }
 
             # Send confirmation to the user who favorited
-            # await self.send_personal_message(
-            #     {
-            #         "type": "favorite_confirmed",
-            #         "message": f"You favorited '{movie_data['title']}'!",
-            #         "movie": movie_data,
-            #     },
-            #     user_id,
-            # )
+            await self.send_personal_message(
+                {
+                    "type": "favorite_confirmed",
+                    "message": f"You favorited {user_name} '{movie_data['title']}'!",
+                    "movie": movie_data,
+                },
+                user_id,
+            )
 
             # Broadcast to all other users
             notifications_sent = await self.broadcast_to_all_other(
