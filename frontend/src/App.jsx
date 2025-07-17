@@ -17,45 +17,10 @@ import { useLocation } from "react-router-dom";
 import Login from "./components/Login.jsx";
 import Register from "./components/Register.jsx";
 import { FavoritesProvider } from "./contexts/FavoritesContext.jsx";
-import { webSocketService } from "./utils/WebSocketService.js";
+import { WebSocketProvider } from "./contexts/WebSocketContext.jsx";
 
 const App = () => {
-  
-  const wssRef = useRef(null);
-
-  const [webSocketState, setWebSocketState] = useState(false);
-
-  useEffect(() => {
-    if (!webSocketState) { if (wssRef.current)wssRef.current.disconnect(); wssRef.current=null;return};
-    const wss = webSocketService;
-    wssRef.current = wss;
-    wssRef.current.connect();
-    return () => {
-      if (wssRef.current) {
-        console.log("Closing WebSocket on cleanup");
-        wssRef.current.disconnect();
-        wssRef.current = null;
-      }
-    };
-  }, [webSocketState]);
-
-  useInterval(() => {
-    if (wssRef.current && wssRef.current.isConnected()) {
-      wssRef.current.send(
-      {
-        type: "favorite_movie",
-        movie: {
-          id: 123,
-          title: "Test Movie",
-          vote_average: 8.0,
-        },
-      }
-      );
-    }
-  }, 5000);
-
-
-  
+    
   const [searchTerm, setSearchTerm] = useState("");
 
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
@@ -69,11 +34,9 @@ const App = () => {
       <div className="pattern" />
       <div className="wrapper">
         <AuthProvider>
+          <WebSocketProvider>
           <FavoritesProvider>
             <header>
-              <button onClick={() => setWebSocketState(ws => !ws)}>
-                {webSocketState ? "Disconnect" : "Connect"}
-              </button>
               <Menu />
               <img src="./hero.png" alt="Hero Banner" />
               {location.pathname === "/" && (
@@ -97,6 +60,7 @@ const App = () => {
               </Route>
             </Routes>
           </FavoritesProvider>
+          </WebSocketProvider>
         </AuthProvider>
       </div>
     </main>

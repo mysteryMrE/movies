@@ -68,8 +68,8 @@ class ConnectionManager:
 
     async def broadcast_to_all_other(self, message: dict, excluded_user_id: str):
         disconnected_users = []
-
-        for user_id, connection in self.active_connections.items():
+        connections_copy = list(self.active_connections.items())
+        for user_id, connection in connections_copy:
             if user_id != excluded_user_id:
                 try:
                     await connection.send_text(json.dumps(message))
@@ -98,14 +98,14 @@ class ConnectionManager:
             }
 
             # Send confirmation to the user who favorited
-            await self.send_personal_message(
-                {
-                    "type": "favorite_confirmed",
-                    "message": f"You favorited '{movie_data['title']}'!",
-                    "movie": movie_data,
-                },
-                user_id,
-            )
+            # await self.send_personal_message(
+            #     {
+            #         "type": "favorite_confirmed",
+            #         "message": f"You favorited '{movie_data['title']}'!",
+            #         "movie": movie_data,
+            #     },
+            #     user_id,
+            # )
 
             # Broadcast to all other users
             notifications_sent = await self.broadcast_to_all_other(

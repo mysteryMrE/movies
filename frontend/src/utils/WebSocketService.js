@@ -1,5 +1,7 @@
 import {config} from "../config.js";
 
+//TODO: Implement reconnect logic
+
 class WebSocketService {
     constructor(){
         this.ws = null;
@@ -62,7 +64,7 @@ class WebSocketService {
     }
 
     send(message) {
-        if (this.ws && this.connected && this.ws.readyState === WebSocket.OPEN) {
+        if (this.isConnected()) {
             this.ws.send(JSON.stringify(message));
             return true;
         } else {
@@ -72,7 +74,7 @@ class WebSocketService {
     }
 
     isConnected() {
-        return this.ws && this.ws.readyState === WebSocket.OPEN && this.isConnected;
+        return this.ws && this.ws.readyState === WebSocket.OPEN && this.connected;
     }
 }
 const webSocketService = new WebSocketService();
