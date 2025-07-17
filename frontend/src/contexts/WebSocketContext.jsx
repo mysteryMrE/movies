@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { webSocketService } from "../utils/WebSocketService.js";
 import { useInterval } from "react-use";
 
@@ -6,26 +6,43 @@ const WebSocketContext = createContext();
 
 const WebSocketProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
+  const [messages, setMessages] = useState([]);
 
   const setupListeners = (ws) => {
     const handleConnectionOpen = () => {
       console.log("WebSocket opened - updating React state");
-      setIsConnected(true);
+      setIsConnected(webSocketService.isConnected());
     };
 
     const handleConnectionClose = () => {
       console.log("WebSocket closed - updating React state");
-      setIsConnected(false);
+      setIsConnected(webSocketService.isConnected());
+      cleanup();
+    };
+
+    const handleMessage = (event) => {
+      const data = JSON.parse(JSON.stringify(event.data));
+      setMessages((prevMessages) => [...prevMessages, data]);
     };
 
     ws.addEventListener('open', handleConnectionOpen);
     ws.addEventListener('close', handleConnectionClose);
+    ws.addEventListener('message', handleMessage);
     
-    return () => {
-      ws.removeEventListener('open', handleConnectionOpen);
-      ws.removeEventListener('close', handleConnectionClose);
+    const cleanup = () => {
+        ws.removeEventListener('open', handleConnectionOpen);
+        ws.removeEventListener('close', handleConnectionClose);
+        ws.removeEventListener('message', handleMessage);
     };
+
+    return cleanup;
   };
+
+  const popFirstMessage = () => {
+    const firstMessage = messages[0];
+    setMessages((prevMessages) => prevMessages.slice(1));
+    return firstMessage;
+  }
 
   const toggleMute = () => {
     console.log("Toggle called, current state:", webSocketService.isConnected());
@@ -33,7 +50,6 @@ const WebSocketProvider = ({ children }) => {
     if (webSocketService.isConnected()) {
       console.log("Disconnecting...");
       webSocketService.disconnect();
-      setIsConnected(false); // Immediate update
     } else {
       console.log("Connecting...");
       webSocketService.connect();
@@ -50,6 +66,7 @@ const WebSocketProvider = ({ children }) => {
   };
 
   const contextData = {
+    popFirstMessage,
     isConnected,
     toggleMute,
     sendMessage
