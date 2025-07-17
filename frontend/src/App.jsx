@@ -18,6 +18,7 @@ import Login from "./components/Login.jsx";
 import Register from "./components/Register.jsx";
 import { FavoritesProvider } from "./contexts/FavoritesContext.jsx";
 import { WebSocketProvider } from "./contexts/WebSocketContext.jsx";
+import Notification from "./components/Notification.jsx";
 
 const App = () => {
     
@@ -43,6 +44,7 @@ const App = () => {
                 <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
               )}
             </header>
+            <Notification />
             <Routes>
               <Route
                 path="/"
