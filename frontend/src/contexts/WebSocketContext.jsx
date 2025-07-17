@@ -11,7 +11,8 @@ import { useInterval } from "react-use";
 import { UseAuth } from "./AuthContext.jsx";
 
 const WebSocketContext = createContext();
-
+//TODO: only appear button to connect for logged in users
+//TODO: bell icon not button
 const WebSocketProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [messageQueue, setMessageQueue] = useState([]);
