@@ -18,6 +18,7 @@ from datetime import datetime
 from websocket_manager import manager
 import logging
 
+# TODO: make webscokets secure, check http header origins
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -286,9 +287,9 @@ async def get_favorites(request: Request, user_id: str = Depends(get_current_use
                 "id": doc["movie_id"],
                 "title": doc["title"],
                 "vote_average": doc.get("vote_average", 0),
-                "poster_path": doc.get("poster_path", ""),
-                "release_date": doc.get("release_date", ""),
-                "original_language": doc.get("original_language", "unknown"),
+                "poster_path": doc.get("poster_path", "") or "",
+                "release_date": doc.get("release_date", "") or "",
+                "original_language": doc.get("original_language", "unknown") or "",
                 "ranking": doc.get("ranking", 0),
             }
             movies.append(movie)

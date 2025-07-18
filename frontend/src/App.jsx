@@ -44,7 +44,6 @@ const App = () => {
                 <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
               )}
             </header>
-            <Notification />
             <Routes>
               <Route
                 path="/"

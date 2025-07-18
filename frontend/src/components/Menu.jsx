@@ -1,15 +1,14 @@
 import { Link } from "react-router-dom";
 import { UseAuth } from "../contexts/AuthContext";
-import { UseWebSocket } from "../contexts/WebSocketContext";
+import Notification from "./Notification.jsx";
 
 function Menu() {
     const { user, logoutUser } = UseAuth();
-    const { isConnected, toggleMute } = UseWebSocket();
 
     return (
         <nav className="menu">
             <ul>
-                <li><button className = "log-button" onClick={toggleMute}>{isConnected ? "Disconnect" : "Connect"}</button></li>
+                { user && <li><Notification /></li> }
                 <li>
                     <Link to="/">Home</Link>
                 </li>

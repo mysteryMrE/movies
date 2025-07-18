@@ -2,12 +2,18 @@ import { useState } from "react";
 import HeartButton from "./HeartButton.jsx";
 import { UseAuth } from "../contexts/AuthContext.jsx";
 import { UseFavorites } from "../contexts/FavoritesContext.jsx";
+import Spinner from "./Spinner.jsx";
+
+//TODO: somehow on some reloads the movie is not liked, but the heart is red.
+//maybe the moviecard is rendered before the favorites context is loaded?
+//maybe use a useEffect to set the liked state after the favorites context is loaded?
+//why doenst isLoading work here?
 
 const MovieCard = ({
   movie: { id, title, vote_average, poster_path, release_date, original_language },
 }) => {
   const { user } = UseAuth();
-  const { addFavorite, removeFavorite, isFavorite } = UseFavorites();
+  const { addFavorite, removeFavorite, isFavorite, isLoading } = UseFavorites();
   const movie = { id, title, vote_average, poster_path, release_date, original_language };
   const [liked, setLiked] = useState(user ? isFavorite(movie) : false);
 
@@ -24,6 +30,8 @@ const MovieCard = ({
   };
 
   return (
+    isLoading ? (
+      <Spinner />) :
     <div className="movie-card">
       <img
         src={

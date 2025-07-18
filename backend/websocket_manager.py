@@ -59,9 +59,10 @@ class ConnectionManager:
         if user_id in self.active_connections:
             try:
                 await self.active_connections[user_id].send_text(json.dumps(message))
+                logger.info(f"Message sent to {user_id}: {message}")
                 return True
             except Exception as e:
-                # logger.error(f"Error sending message to {user_id}: {e}")
+                logger.error(f"Error sending message to {user_id}: {e}")
                 self.disconnect(user_id)
                 return False
         return False
@@ -75,7 +76,7 @@ class ConnectionManager:
                     await connection.send_text(json.dumps(message))
                     logger.info(f"Notification sent to user {user_id}")
                 except Exception as e:
-                    # logger.error(f"Error sending notification to {user_id}: {e}")
+                    logger.error(f"Error sending notification to {user_id}: {e}")
                     disconnected_users.append(user_id)
 
         # Clean up broken connections
@@ -98,7 +99,7 @@ class ConnectionManager:
             await self.send_personal_message(
                 {
                     "type": "favorite_confirmed",
-                    "message": f"You favorited {user_name} '{movie_data['title']}'!",
+                    "message": f"You favorited {movie_data['title']}!",
                     "movie": movie_data,
                 },
                 user_id,

@@ -107,6 +107,7 @@ const WebSocketProvider = ({ children }) => {
 
   const sendMessage = (message) => {
     webSocketService.send(message);
+    console.log("Message sent:", message);
   };
 
   const contextData = {
