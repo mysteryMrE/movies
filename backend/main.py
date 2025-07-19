@@ -16,12 +16,10 @@ import threading
 from fastapi import WebSocket, WebSocketDisconnect
 from datetime import datetime
 from websocket_manager import manager
-import logging
+from utils.logger import setup_colored_logging
 
-# TODO: make webscokets secure, check http header origins
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = setup_colored_logging()
 
 
 # TODO: what is this logger
@@ -407,9 +405,6 @@ async def remove_favorite(
 @app.websocket("/ws/{user_id}")
 async def websocket_endpoint(websocket: WebSocket, user_id: str, jwt: str):
     origin = websocket.headers.get("origin")
-    logger.info(
-        f"WebSocket connection from {user_id} with origin {origin} and JWT {jwt}"
-    )
 
     allowed_origins = [
         "http://localhost:3000",
@@ -437,18 +432,28 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str, jwt: str):
                 message = json.loads(data)
                 message_type = message.get("type")
                 if message_type == "ping":
+                    logger.critical(f"Ping received from {user_id}")
                     await manager.send_personal_message(
                         {"type": "pong", "timestamp": message.get("timestamp")}, user_id
                     )
+
                 elif message_type == "favorite_movie":
                     movie = message.get("movie")
                     user_name = message.get("user_name", "Unknown User")
                     if movie:
+                        logger.error(
+                            f"Favorite movie action received from {user_id}: {movie}"
+                        )
                         await manager.handle_favorite_action(user_id, movie, user_name)
+                else:
+                    logger.warning(f"Unknown message type: {message_type}")
+                    await manager.send_personal_message(
+                        {"error": "Unknown message type"}, user_id
+                    )
             except json.JSONDecodeError:
                 logger.error(f"Invalid JSON received from {user_id}: {data}")
             except Exception as e:
-                logger.error(f"Error processing message from {user_id}:")
+                logger.error(f"Error processing message from {user_id}: {e}")
     except WebSocketDisconnect:
         await manager.disconnect(user_id)
 
@@ -464,4 +469,9 @@ async def websocket_status():
 if __name__ == "__main__":
     # Cloud Run sets PORT environment variable
     port = int(os.environ.get("PORT", 8080))
+    logger.debug("This is a debug message.")
+    logger.info("This is an info message.")
+    logger.warning("This is a warning message.")
+    logger.error("This is an error message.")
+    logger.critical("This is a critical message.")
     uvicorn.run(app, host="0.0.0.0", port=port)

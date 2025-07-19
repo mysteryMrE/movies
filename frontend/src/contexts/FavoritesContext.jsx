@@ -90,14 +90,14 @@ async function getFavoritesFromDB(userID, jwt) {
     },
     credentials: "include",
   });
-  console.log("userid: ", userID);
+  //console.log("userid: ", userID);
   if (!response.ok) throw new Error("Failed to fetch trending movies");
   const data = await response.json();
-  console.log("new data: ", data["favorites"]);
+  //console.log("new data: ", data["favorites"]);
   if (data.Response === "False") {
     throw new Error(data.Error || "Failed to format json.");
   }
-  console.log("hello ", data);
+  //console.log("hello ", data);
   return data["favorites"];
 }
 

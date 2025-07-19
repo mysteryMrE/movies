@@ -2,7 +2,7 @@ import { UseWebSocket } from "../contexts/WebSocketContext";
 import { useState, useRef, useEffect } from "react";
 
 const Notification = () => {
-  const { popFirstMessage, messageQueue, isConnected, toggleMute } =
+  const { popFirstMessage, messageQueueRef, isConnected, toggleMute } =
     UseWebSocket();
   const [message, setMessage] = useState("");
   const [isVisible, setIsVisible] = useState(false);
@@ -10,9 +10,10 @@ const Notification = () => {
   const draining = useRef(false);
 
   useEffect(() => {
-    if (!draining.current && messageQueue.length > 0) {
+    //console.log("trying")
+    if (!draining.current && messageQueueRef.current.length > 0) {
       draining.current = true;
-
+      //console.log("going");
       const loop = async () => {
         let currentMessage;
 
@@ -39,7 +40,7 @@ const Notification = () => {
 
       loop();
     }
-  }, [messageQueue]);
+  }, [messageQueueRef.current]);
 
   return (
     <>

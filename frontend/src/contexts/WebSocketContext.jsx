@@ -7,19 +7,23 @@ import {
   useEffect,
 } from "react";
 import { webSocketService } from "../utils/WebSocketService.js";
-import { useInterval } from "react-use";
 import { UseAuth } from "./AuthContext.jsx";
 
 const WebSocketContext = createContext();
+
 const WebSocketProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [messageQueue, setMessageQueue] = useState([]);
   const messageQueueRef = useRef([]);
   const { user, jwt } = UseAuth();
+  const cleanupRef = useRef(null);
 
-  useEffect(() => {
-    messageQueueRef.current = messageQueue;
-  }, [messageQueue]);
+  // useEffect(() => {
+  //   messageQueueRef.current = messageQueue;
+  //   console.log("messageQueueRef updated:", messageQueueRef.current);
+  // }, [messageQueue]);
+
+
 
   const setupListeners = (ws) => {
     const handleConnectionOpen = () => {
@@ -57,7 +61,7 @@ const WebSocketProvider = ({ children }) => {
   };
 
   const popFirstMessage = useCallback(() => {
-    console.log("Attempting to pop first message from queue");
+    //console.log("Attempting to pop first message from queue");
 
     const currentQueue = messageQueueRef.current;
 
@@ -67,16 +71,13 @@ const WebSocketProvider = ({ children }) => {
     }
 
     const capturedMessage = currentQueue[0];
-    //console.log("Popping first message:", capturedMessage);
 
-    // Update the state AND sync the ref
     setMessageQueue((prevQueue) => {
       const newQueue = prevQueue.slice(1);
-      messageQueueRef.current = newQueue; // Keep ref in sync immediately
+      messageQueueRef.current = newQueue;
       return newQueue;
     });
-
-    //console.log("Captured message:", capturedMessage);
+    //console.log("Popped message:", capturedMessage);
     return capturedMessage;
   }, []);
 
@@ -96,19 +97,50 @@ const WebSocketProvider = ({ children }) => {
 
       // Set up listeners on the NEW WebSocket instance
       if (webSocketService.ws) {
-        setupListeners(webSocketService.ws);
+        cleanupRef.current = setupListeners(webSocketService.ws);
       }
     }
-    setMessageQueue((prevQueue) => {
+    setMessageQueue((prev) => {
       const newQueue = [];
       messageQueueRef.current = newQueue;
       return newQueue;
     });
-  };
+  }
+
+  //this context wont ever unmount, but this effect here incase we modify something
+  useEffect(() => {
+    return () => {
+      if (webSocketService.isConnected()) {
+        webSocketService.disconnect();
+      }
+      if (cleanupRef.current) {
+        cleanupRef.current();
+        cleanupRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (webSocketService.isConnected()) {
+        webSocketService.disconnect();
+      }
+      if (cleanupRef.current) {
+        cleanupRef.current();
+        cleanupRef.current = null;
+      }
+      setIsConnected(false);
+      setMessageQueue((prevQueue) => {
+        const newQueue = [];
+        messageQueueRef.current = newQueue;
+        return newQueue;
+      });
+    };
+  }, [user]);
 
   const sendMessage = (message) => {
     webSocketService.send(message);
-    console.log("Message sent:", message);
+    //console.log("Message sent:", message);
   };
 
   const contextData = {
@@ -117,6 +149,7 @@ const WebSocketProvider = ({ children }) => {
     isConnected,
     toggleMute,
     sendMessage,
+    messageQueueRef,
   };
   const defaultContextData = {
     popFirstMessage: () => "",
@@ -124,6 +157,7 @@ const WebSocketProvider = ({ children }) => {
     isConnected: false,
     toggleMute: () => {},
     sendMessage: () => {},
+    messageQueueRef: { current: [] },
   };
 
   // useInterval(() => {

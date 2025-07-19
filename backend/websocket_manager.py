@@ -1,13 +1,11 @@
 from fastapi import WebSocket
 import json
-import logging
 from datetime import datetime
+from utils.logger import setup_colored_logging
 
-logger = logging.getLogger(__name__)
+logger = setup_colored_logging()
 
-# TODO take care of concurenccy issues with the active connecitons
 # TODO handle reconnections properly
-# TODO disconnecting is a bit funky, sny vs asnyc what is going on, double disconnecting happens also
 
 
 class ConnectionManager:
@@ -47,7 +45,6 @@ class ConnectionManager:
                         f"Attempted to close already-closed WebSocket for user {user_id}: {e}"
                     )
                 except Exception as e:
-                    # Catch any other unexpected errors during close
                     logger.error(f"Error closing WebSocket for user {user_id}: {e}")
 
         logger.info(
@@ -70,6 +67,7 @@ class ConnectionManager:
     async def broadcast_to_all_other(self, message: dict, excluded_user_id: str):
         disconnected_users = []
         connections_copy = list(self.active_connections.items())
+        active_user_count = len(connections_copy)
         for user_id, connection in connections_copy:
             if user_id != excluded_user_id:
                 try:
@@ -79,23 +77,19 @@ class ConnectionManager:
                     logger.error(f"Error sending notification to {user_id}: {e}")
                     disconnected_users.append(user_id)
 
-        # Clean up broken connections
         for user_id in disconnected_users:
             await self.disconnect(user_id)
 
-        return len(self.active_connections) - len(disconnected_users) - 1
+        return active_user_count - len(disconnected_users) - 1
 
     async def handle_favorite_action(
         self, user_id: str, movie_data: dict, user_name: str
     ):
         try:
-            # Create notification message
             notification = {
                 "type": "new_favorite",
                 "message": f"🎬 {user_name} just favorited '{movie_data['title']}'!",
             }
-
-            # Send confirmation to the user who favorited
             await self.send_personal_message(
                 {
                     "type": "favorite_confirmed",
@@ -105,7 +99,6 @@ class ConnectionManager:
                 user_id,
             )
 
-            # Broadcast to all other users
             notifications_sent = await self.broadcast_to_all_other(
                 notification, user_id
             )
@@ -114,7 +107,7 @@ class ConnectionManager:
             return notifications_sent
 
         except Exception as e:
-            # logger.error(f"Error handling favorite action: {e}")
+            logger.error(f"Error handling favorite action for {user_id}: {e}")
             return 0
 
 

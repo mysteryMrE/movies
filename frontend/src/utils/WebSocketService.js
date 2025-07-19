@@ -29,10 +29,10 @@ class WebSocketService {
             this.ws.send(JSON.stringify({ type: "ping", timestamp: Date.now() }));
         };
 
-        this.ws.onmessage = (event) => {
-            const data = JSON.parse(JSON.stringify(event.data));
-            //console.log("Message received:", JSON.parse(data));
-        };
+        // this.ws.onmessage = (event) => {
+        //     const data = JSON.parse(JSON.stringify(event.data));
+        //     console.log("Message received:", JSON.parse(data));
+        // };
 
         this.ws.onclose = () => {
             console.log("WebSocket connection closed.");
@@ -66,6 +66,7 @@ class WebSocketService {
     send(message) {
         if (this.isConnected()) {
             this.ws.send(JSON.stringify(message));
+            console.log("Message sent:", message);
             return true;
         } else {
             console.warn("WebSocket not connected, message not sent:", message);
