@@ -17,7 +17,6 @@ const WebSocketProvider = ({ children }) => {
   const messageQueueRef = useRef([]);
   const { user, jwt } = UseAuth();
 
-
   useEffect(() => {
     messageQueueRef.current = messageQueue;
   }, [messageQueue]);
@@ -60,7 +59,6 @@ const WebSocketProvider = ({ children }) => {
   const popFirstMessage = useCallback(() => {
     console.log("Attempting to pop first message from queue");
 
-
     const currentQueue = messageQueueRef.current;
 
     if (currentQueue.length === 0) {
@@ -101,6 +99,11 @@ const WebSocketProvider = ({ children }) => {
         setupListeners(webSocketService.ws);
       }
     }
+    setMessageQueue((prevQueue) => {
+      const newQueue = [];
+      messageQueueRef.current = newQueue;
+      return newQueue;
+    });
   };
 
   const sendMessage = (message) => {
