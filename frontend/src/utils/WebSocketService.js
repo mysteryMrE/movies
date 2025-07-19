@@ -12,14 +12,14 @@ class WebSocketService {
         this.connected = false;
     }
 
-    connect(user_id){
+    connect(user_id, jwt){
         if (this.connecting || this.connected) {
             console.warn("WebSocket is already connecting or connected.");
             return;
         }
 
         this.connecting = true;
-        this.ws = new WebSocket(`${config.fastapiBaseSocket}/${user_id}`);
+        this.ws = new WebSocket(`${config.fastapiBaseSocket}/${user_id}?jwt=${jwt}`);
 
         this.ws.onopen = () => {
             console.log("WebSocket connection established.");

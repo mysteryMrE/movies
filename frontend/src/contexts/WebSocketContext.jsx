@@ -11,13 +11,11 @@ import { useInterval } from "react-use";
 import { UseAuth } from "./AuthContext.jsx";
 
 const WebSocketContext = createContext();
-//TODO: only appear button to connect for logged in users
-//TODO: bell icon not button
 const WebSocketProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [messageQueue, setMessageQueue] = useState([]);
   const messageQueueRef = useRef([]);
-  const { user } = UseAuth();
+  const { user, jwt } = UseAuth();
 
 
   useEffect(() => {
@@ -96,7 +94,7 @@ const WebSocketProvider = ({ children }) => {
       webSocketService.disconnect();
     } else {
       console.log("Connecting...");
-      webSocketService.connect(user?.$id);
+      webSocketService.connect(user.$id, jwt);
 
       // Set up listeners on the NEW WebSocket instance
       if (webSocketService.ws) {

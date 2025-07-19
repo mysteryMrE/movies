@@ -25,7 +25,6 @@ logger = logging.getLogger(__name__)
 
 
 # TODO: what is this logger
-# TODO: replace legacy typing with modern | None and lowercase types
 
 
 class Movie(BaseModel):
@@ -48,8 +47,6 @@ class Movie(BaseModel):
 class Movies(BaseModel):
     results: List[Movie]
 
-
-# TODO: replace appwrite.js
 
 app = FastAPI()
 
@@ -223,21 +220,7 @@ from appwrite.services.account import Account
 from appwrite.exception import AppwriteException
 
 
-async def get_current_user_id(request: Request):
-    auth_header = request.headers.get("Authorization")
-
-    # for testing purposes
-    if not auth_header:
-        print("No auth header found, using default test user")
-        return "685845f800158229181c"  # Your test user ID
-
-    if not auth_header or not auth_header.startswith("Bearer "):
-        raise HTTPException(
-            status_code=401, detail="Missing or invalid Authorization header"
-        )
-
-    jwt = auth_header.split(" ")[1]
-
+def test_jwt(jwt: str):
     try:
         # Initialize Appwrite client
         client = Client()
@@ -251,11 +234,32 @@ async def get_current_user_id(request: Request):
         # Get user account (this validates the JWT)
         user = account.get()
 
+        print(f"User ID: {user['$id']}")
         return user["$id"]
 
     except AppwriteException as e:
         print(f"Appwrite validation failed: {e.message}")
-        raise HTTPException(status_code=401, detail="Invalid JWT")
+        raise Exception("Invalid JWT")
+
+
+def get_current_user_id(request: Request):
+    auth_header = request.headers.get("Authorization")
+
+    # for testing purposes
+    if not auth_header:
+        print("No auth header found, using default test user")
+        return "685845f800158229181c"  # Your test user ID
+
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=401, detail="Missing or invalid Authorization header"
+        )
+
+    jwt = auth_header.split(" ")[1]
+    try:
+        return test_jwt(jwt)
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=str(e))
 
 
 class FavoriteMovie(BaseModel):
@@ -401,7 +405,30 @@ async def remove_favorite(
 
 # websockets
 @app.websocket("/ws/{user_id}")
-async def websocket_endpoint(websocket: WebSocket, user_id: str):
+async def websocket_endpoint(websocket: WebSocket, user_id: str, jwt: str):
+    origin = websocket.headers.get("origin")
+    logger.info(
+        f"WebSocket connection from {user_id} with origin {origin} and JWT {jwt}"
+    )
+
+    allowed_origins = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://frontend:3000",
+    ]
+
+    if origin and origin not in allowed_origins:
+        logger.warning(f"WebSocket connection rejected - Invalid origin: {origin}")
+        await websocket.close(code=1008, reason="Invalid origin")
+        return
+
+    try:
+        test_jwt(jwt)
+    except Exception as e:
+        logger.error(f"WebSocket connection failed: {str(e)}")
+        await websocket.close(code=1008, reason=str(e))
+        return
+
     await manager.connect(websocket, user_id)
     try:
         while True:
