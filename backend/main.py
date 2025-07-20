@@ -432,7 +432,7 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str, jwt: str):
                 message = json.loads(data)
                 message_type = message.get("type")
                 if message_type == "ping":
-                    logger.critical(f"Ping received from {user_id}")
+                    # logger.critical(f"Ping received from {user_id}")
                     await manager.send_personal_message(
                         {"type": "pong", "timestamp": message.get("timestamp")}, user_id
                     )
@@ -441,9 +441,9 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str, jwt: str):
                     movie = message.get("movie")
                     user_name = message.get("user_name", "Unknown User")
                     if movie:
-                        logger.error(
-                            f"Favorite movie action received from {user_id}: {movie}"
-                        )
+                        # logger.error(
+                        #     f"Favorite movie action received from {user_id}: {movie}"
+                        # )
                         await manager.handle_favorite_action(user_id, movie, user_name)
                 else:
                     logger.warning(f"Unknown message type: {message_type}")

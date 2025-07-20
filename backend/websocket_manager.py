@@ -29,7 +29,6 @@ class ConnectionManager:
 
     async def disconnect(self, user_id: str):
         if user_id in self.active_connections:
-            print("hello")
             websocket_to_close = self.active_connections.get(user_id)
             del self.active_connections[user_id]
             logger.info(
@@ -38,7 +37,6 @@ class ConnectionManager:
             if websocket_to_close:
                 try:
                     await websocket_to_close.close()
-                    print("hihi")
                     logger.info(f"WebSocket for user {user_id} explicitly closed.")
                 except RuntimeError as e:
                     logger.warning(
@@ -88,12 +86,12 @@ class ConnectionManager:
         try:
             notification = {
                 "type": "new_favorite",
-                "message": f"🎬 {user_name} just favorited '{movie_data['title']}'!",
+                "message": f"🎬 {user_name} just favorited '{movie_data['title']}'",
             }
             await self.send_personal_message(
                 {
                     "type": "favorite_confirmed",
-                    "message": f"You favorited {movie_data['title']}!",
+                    "message": f"🎬 You just favorited {movie_data['title']}",
                     "movie": movie_data,
                 },
                 user_id,
