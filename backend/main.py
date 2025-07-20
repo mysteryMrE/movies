@@ -2,7 +2,6 @@ import uvicorn
 from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional, Dict
 import os
 import httpx
 from dotenv import load_dotenv
@@ -26,24 +25,24 @@ logger = setup_colored_logging()
 
 
 class Movie(BaseModel):
-    adult: Optional[bool] = None
-    backdrop_path: Optional[str] = None
-    genre_ids: Optional[List[int]] = None
-    id: Optional[int] = None
-    original_title: Optional[str] = None
-    original_language: Optional[str] = None
-    overview: Optional[str] = None
-    popularity: Optional[float] = None
-    poster_path: Optional[str] = None
-    release_date: Optional[str] = None
-    title: Optional[str] = None
-    video: Optional[bool] = None
-    vote_average: Optional[float] = None
-    vote_count: Optional[int] = None
+    adult: bool | None
+    backdrop_path: str | None
+    genre_ids: list[int] | None
+    id: int | None
+    original_title: str | None
+    original_language: str | None
+    overview: str | None
+    popularity: float | None
+    poster_path: str | None
+    release_date: str | None
+    title: str | None
+    video: bool | None
+    vote_average: float | None
+    vote_count: int | None
 
 
 class Movies(BaseModel):
-    results: List[Movie]
+    results: list[Movie]
 
 
 app = FastAPI()
@@ -68,7 +67,7 @@ class Fruit(BaseModel):
 
 
 class Fruits(BaseModel):
-    fruits: List[Fruit]
+    fruits: list[Fruit]
 
 
 @app.get("/fruits", response_model=Fruits)
@@ -271,7 +270,7 @@ class FavoriteMovie(BaseModel):
 
 
 class FavoriteResponse(BaseModel):
-    favorites: List[FavoriteMovie]
+    favorites: list[FavoriteMovie]
 
 
 @app.get("/api/favorites", response_model=FavoriteResponse)
@@ -306,11 +305,11 @@ async def get_favorites(request: Request, user_id: str = Depends(get_current_use
 class FavoriteMoviePost(BaseModel):
     id: int
     title: str
-    vote_average: Optional[float] = 0
-    poster_path: Optional[str] = ""
-    release_date: Optional[str] = ""
-    original_language: Optional[str] = "unknown"
-    ranking: Optional[int] = 1
+    vote_average: float | None = 0
+    poster_path: str | None = ""
+    release_date: str | None = ""
+    original_language: str | None = "unknown"
+    ranking: int | None = 1
 
 
 class FavoritePostRequestBody(BaseModel):
