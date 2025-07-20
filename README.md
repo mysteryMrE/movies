@@ -66,7 +66,7 @@ If you have docker installed, using it is the faster and easier way.
 2. Backend
    - Open a terminal and go into the backend folder
       ```bash
-      cd frontend
+      cd backend
       ```
    - Create a virtual environment
       ```bash
@@ -108,7 +108,7 @@ If you have docker installed, using it is the faster and easier way.
       ```bash
       docker run movie-project-backend
       ```
-   > NOT WORKING YET, NO ENV FILE NOR INJECTION FOR BACKEND IMAGE
+   > NOT WORKING YET, NO ENV FILE NOR INJECTION FOR BACKEND CONTAINER
 4. Docker Compose
    - Build + Run separately
       - Build the images
