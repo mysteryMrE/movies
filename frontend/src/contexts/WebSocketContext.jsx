@@ -70,10 +70,8 @@ const WebSocketProvider = ({ children }) => {
   const toggleMute = () => {
     if (!user) return;
     if (webSocketService.isConnected()) {
-
       webSocketService.disconnect();
     } else {
-
       webSocketService.connect(user.$id, jwt);
 
       // Set up listeners on the NEW WebSocket instance

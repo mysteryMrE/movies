@@ -56,7 +56,6 @@ class WebSocketService {
       this.ws.send(JSON.stringify(message));
       return true;
     } else {
-      console.warn("WebSocket not connected, message not sent:", message);
       return false;
     }
   }

@@ -11,7 +11,9 @@ function FavoriteMovies() {
 
   return (
     <section className="all-movies">
-      <h2 className = "favorite-title"><span className="text-gradient">Your favorites</span></h2>
+      <h2 className="favorite-title">
+        <span className="text-gradient">Your favorites</span>
+      </h2>
       {isLoading ? (
         <Spinner />
       ) : favoriteList.length === 0 ? (
