@@ -21,7 +21,6 @@ import { WebSocketProvider } from "./contexts/WebSocketContext.jsx";
 import Notification from "./components/Notification.jsx";
 
 const App = () => {
-    
   const [searchTerm, setSearchTerm] = useState("");
 
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
@@ -36,31 +35,34 @@ const App = () => {
       <div className="wrapper">
         <AuthProvider>
           <WebSocketProvider>
-          <FavoritesProvider>
-            <header>
-              <Menu />
-              <img src="./hero.png" alt="Hero Banner" />
-              {location.pathname === "/" && (
-                <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-              )}
-            </header>
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <>
-                    <TrendingList />
-                    <MovieList searchTerm={debouncedSearchTerm} />
-                  </>
-                }
-              />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route element={<PrivateRoutes />}>
-                <Route path="/favorites" element={<FavoriteMovies />} />
-              </Route>
-            </Routes>
-          </FavoritesProvider>
+            <FavoritesProvider>
+              <header>
+                <Menu />
+                <img src="./hero.png" alt="Hero Banner" />
+                {location.pathname === "/" && (
+                  <Search
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                  />
+                )}
+              </header>
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    <>
+                      <TrendingList />
+                      <MovieList searchTerm={debouncedSearchTerm} />
+                    </>
+                  }
+                />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route element={<PrivateRoutes />}>
+                  <Route path="/favorites" element={<FavoriteMovies />} />
+                </Route>
+              </Routes>
+            </FavoritesProvider>
           </WebSocketProvider>
         </AuthProvider>
       </div>
