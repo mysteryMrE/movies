@@ -1,9 +1,9 @@
 import "./App.css";
 import Search from "./components/Search.jsx";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, useRef, use } from "react";
 import FavoriteMovies from "./components/FavoriteMovies.jsx";
 import MovieList from "./components/MovieList.jsx";
-import { useDebounce } from "react-use";
+import { useDebounce, useInterval } from "react-use";
 import TrendingList from "./components/TrendingList.jsx";
 import Menu from "./components/Menu.jsx";
 
@@ -17,8 +17,11 @@ import { useLocation } from "react-router-dom";
 import Login from "./components/Login.jsx";
 import Register from "./components/Register.jsx";
 import { FavoritesProvider } from "./contexts/FavoritesContext.jsx";
+import { WebSocketProvider } from "./contexts/WebSocketContext.jsx";
+import Notification from "./components/Notification.jsx";
 
 const App = () => {
+    
   const [searchTerm, setSearchTerm] = useState("");
 
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
@@ -32,6 +35,7 @@ const App = () => {
       <div className="pattern" />
       <div className="wrapper">
         <AuthProvider>
+          <WebSocketProvider>
           <FavoritesProvider>
             <header>
               <Menu />
@@ -57,6 +61,7 @@ const App = () => {
               </Route>
             </Routes>
           </FavoritesProvider>
+          </WebSocketProvider>
         </AuthProvider>
       </div>
     </main>

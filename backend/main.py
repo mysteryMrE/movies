@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict
 import os
 import httpx
 from dotenv import load_dotenv
@@ -13,6 +13,16 @@ from appwrite.services.databases import Databases
 from appwrite.query import Query
 import json
 import threading
+from fastapi import WebSocket, WebSocketDisconnect
+from datetime import datetime
+from websocket_manager import manager
+from utils.logger import setup_colored_logging
+
+
+logger = setup_colored_logging()
+
+
+# TODO: what is this logger
 
 
 class Movie(BaseModel):
@@ -35,8 +45,6 @@ class Movie(BaseModel):
 class Movies(BaseModel):
     results: List[Movie]
 
-
-# TODO: replace appwrite.js
 
 app = FastAPI()
 
@@ -210,21 +218,7 @@ from appwrite.services.account import Account
 from appwrite.exception import AppwriteException
 
 
-async def get_current_user_id(request: Request):
-    auth_header = request.headers.get("Authorization")
-
-    # for testing purposes
-    if not auth_header:
-        print("No auth header found, using default test user")
-        return "685845f800158229181c"  # Your test user ID
-
-    if not auth_header or not auth_header.startswith("Bearer "):
-        raise HTTPException(
-            status_code=401, detail="Missing or invalid Authorization header"
-        )
-
-    jwt = auth_header.split(" ")[1]
-
+def test_jwt(jwt: str):
     try:
         # Initialize Appwrite client
         client = Client()
@@ -238,11 +232,32 @@ async def get_current_user_id(request: Request):
         # Get user account (this validates the JWT)
         user = account.get()
 
+        print(f"User ID: {user['$id']}")
         return user["$id"]
 
     except AppwriteException as e:
         print(f"Appwrite validation failed: {e.message}")
-        raise HTTPException(status_code=401, detail="Invalid JWT")
+        raise Exception("Invalid JWT")
+
+
+def get_current_user_id(request: Request):
+    auth_header = request.headers.get("Authorization")
+
+    # for testing purposes
+    if not auth_header:
+        print("No auth header found, using default test user")
+        return "685845f800158229181c"  # Your test user ID
+
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=401, detail="Missing or invalid Authorization header"
+        )
+
+    jwt = auth_header.split(" ")[1]
+    try:
+        return test_jwt(jwt)
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=str(e))
 
 
 class FavoriteMovie(BaseModel):
@@ -274,9 +289,9 @@ async def get_favorites(request: Request, user_id: str = Depends(get_current_use
                 "id": doc["movie_id"],
                 "title": doc["title"],
                 "vote_average": doc.get("vote_average", 0),
-                "poster_path": doc.get("poster_path", ""),
-                "release_date": doc.get("release_date", ""),
-                "original_language": doc.get("original_language", "unknown"),
+                "poster_path": doc.get("poster_path", "") or "",
+                "release_date": doc.get("release_date", "") or "",
+                "original_language": doc.get("original_language", "unknown") or "",
                 "ranking": doc.get("ranking", 0),
             }
             movies.append(movie)
@@ -386,7 +401,77 @@ async def remove_favorite(
     return {"error": "Something went wrong"}
 
 
+# websockets
+@app.websocket("/ws/{user_id}")
+async def websocket_endpoint(websocket: WebSocket, user_id: str, jwt: str):
+    origin = websocket.headers.get("origin")
+
+    allowed_origins = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://frontend:3000",
+    ]
+
+    if origin and origin not in allowed_origins:
+        logger.warning(f"WebSocket connection rejected - Invalid origin: {origin}")
+        await websocket.close(code=1008, reason="Invalid origin")
+        return
+
+    try:
+        test_jwt(jwt)
+    except Exception as e:
+        logger.error(f"WebSocket connection failed: {str(e)}")
+        await websocket.close(code=1008, reason=str(e))
+        return
+
+    await manager.connect(websocket, user_id)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            try:
+                message = json.loads(data)
+                message_type = message.get("type")
+                if message_type == "ping":
+                    # logger.critical(f"Ping received from {user_id}")
+                    await manager.send_personal_message(
+                        {"type": "pong", "timestamp": message.get("timestamp")}, user_id
+                    )
+
+                elif message_type == "favorite_movie":
+                    movie = message.get("movie")
+                    user_name = message.get("user_name", "Unknown User")
+                    if movie:
+                        # logger.error(
+                        #     f"Favorite movie action received from {user_id}: {movie}"
+                        # )
+                        await manager.handle_favorite_action(user_id, movie, user_name)
+                else:
+                    logger.warning(f"Unknown message type: {message_type}")
+                    await manager.send_personal_message(
+                        {"error": "Unknown message type"}, user_id
+                    )
+            except json.JSONDecodeError:
+                logger.error(f"Invalid JSON received from {user_id}: {data}")
+            except Exception as e:
+                logger.error(f"Error processing message from {user_id}: {e}")
+    except WebSocketDisconnect:
+        await manager.disconnect(user_id)
+
+
+@app.get("/api/ws/status")
+async def websocket_status():
+    return {
+        "active_connections": len(manager.active_connections),
+        "connected_users": list(manager.active_connections.keys()),
+    }
+
+
 if __name__ == "__main__":
     # Cloud Run sets PORT environment variable
     port = int(os.environ.get("PORT", 8080))
+    logger.debug("This is a debug message.")
+    logger.info("This is an info message.")
+    logger.warning("This is a warning message.")
+    logger.error("This is an error message.")
+    logger.critical("This is a critical message.")
     uvicorn.run(app, host="0.0.0.0", port=port)

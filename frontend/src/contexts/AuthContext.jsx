@@ -39,7 +39,7 @@ const AuthProvider = ({ children }) => {
     setLoading(true);
     setAuthError(null);
 
-    console.log("userInfo", userInfo);
+    //console.log("userInfo", userInfo);
 
     try {
       let response = await account.createEmailPasswordSession(
@@ -102,7 +102,7 @@ const AuthProvider = ({ children }) => {
     try {
       const jwtResponse = await account.createJWT();
       setJwt(jwtResponse.jwt);
-      console.log("new jwt ", jwtResponse.jwt);
+      //console.log("new jwt ", jwtResponse.jwt);
     } catch (error) {
       setJwt(null);
       console.error("JWT generation failed:", error);
