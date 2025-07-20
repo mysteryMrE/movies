@@ -126,4 +126,4 @@ If you have docker installed, using it is the faster and easier way.
 ## 📚 Based On
 
 The frontend project is based on:
-* **Tutorial:** [React JS 19 Full Course 2025]([Link to the Tutorial](https://www.youtube.com/watch?v=dCLhUialKPQ)) by [JavaScript Mastery]
+* **Tutorial:** [React JS 19 Full Course 2025](https://www.youtube.com/watch?v=dCLhUialKPQ) by [JavaScript Mastery]
