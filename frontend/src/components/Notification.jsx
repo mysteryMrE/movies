@@ -10,24 +10,27 @@ const Notification = () => {
   const draining = useRef(false);
 
   useEffect(() => {
-    //console.log("trying")
     if (!draining.current && messageQueueRef.current.length > 0) {
       draining.current = true;
-      //console.log("going");
       const loop = async () => {
         let currentMessage;
 
-        while ((currentMessage = popFirstMessage()) !== null && (currentMessage.type === "connection_established" || currentMessage.type === "favorite_confirmed" || currentMessage.type === "new_favorite")) {
+        while (
+          (currentMessage = popFirstMessage()) !== null &&
+          (currentMessage.type === "connection_established" ||
+            currentMessage.type === "favorite_confirmed" ||
+            currentMessage.type === "new_favorite")
+        ) {
           setMessage(currentMessage);
           setIsVisible(true);
           setFadeOut(false);
-          
+
           // Wait for the message to be displayed
           await new Promise((resolve) => setTimeout(resolve, 3700));
-          
+
           // Start fade out animation
           setFadeOut(true);
-          
+
           // Wait for fade out to complete
           await new Promise((resolve) => setTimeout(resolve, 300));
         }
@@ -45,7 +48,7 @@ const Notification = () => {
   return (
     <>
       {message && isVisible && (
-        <div className={`notification ${fadeOut ? 'fade-out' : ''}`}>
+        <div className={`notification ${fadeOut ? "fade-out" : ""}`}>
           {message.message}
         </div>
       )}

@@ -4,12 +4,6 @@ import Spinner from "./Spinner.jsx";
 import MovieCard from "./MovieCard.jsx";
 import { config } from "../config.js";
 
-// console.log('🐛 Debug env vars: movie', {
-//   VITE_FASTAPI_BASE_URL: import.meta.env.VITE_FASTAPI_BASE_URL,
-//   MODE: import.meta.env.MODE,
-//   all: import.meta.env
-// });
-
 function MovieList({ searchTerm }) {
   const { data, error, isLoading } = useQuery({
     queryKey: ["movies", searchTerm],
@@ -17,13 +11,6 @@ function MovieList({ searchTerm }) {
     staleTime: 5 * 60 * 1000,
   });
 
-  useEffect(() => {
-    if (data) {
-      console.log(`Fetched movies ${searchTerm}:`, data);
-    }
-  }, [searchTerm, data]);
-
-  //if (isLoading) return <Spinner />;
   if (error) return <p className="text-red-500">Error: {error.message}</p>;
 
   return (
@@ -45,11 +32,6 @@ function MovieList({ searchTerm }) {
 }
 
 const FASTAPI_BASE_URL = config.fastapiBaseUrl;
-// console.log('🐛 Debug env vars: movie 2', {
-//   VITE_FASTAPI_BASE_URL: FASTAPI_BASE_URL,
-//   MODE: import.meta.env.MODE,
-//   all: import.meta.env
-// });
 
 const fetchMovies = async (query = "") => {
   const url = query

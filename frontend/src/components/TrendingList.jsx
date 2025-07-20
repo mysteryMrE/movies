@@ -3,12 +3,6 @@ import { useRef, useEffect } from "react";
 import Spinner from "./Spinner.jsx";
 import { config } from "../config.js";
 
-// console.log('🐛 Debug env vars: trending', {
-//   VITE_FASTAPI_BASE_URL: import.meta.env.VITE_FASTAPI_BASE_URL,
-//   MODE: import.meta.env.MODE,
-//   all: import.meta.env
-// });
-
 function TrendingList() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["trending-movies"],
