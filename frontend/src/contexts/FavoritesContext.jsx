@@ -1,8 +1,6 @@
 import { createContext, useContext } from "react";
-//import { addFavoriteToDB, removeFavoriteFromDB, getFavoritesFromDB } from "../appwrite"; // implement getFavoritesFromDB
-import { UseAuth } from "./AuthContext"; // to get the current user
+import { UseAuth } from "./AuthContext";
 import { useQuery } from "@tanstack/react-query";
-//import Spinner from "../components/Spinner";
 import { config } from "../config";
 import { UseWebSocket } from "./WebSocketContext";
 
@@ -31,20 +29,16 @@ const FavoritesProvider = ({ children }) => {
 
   const addFavorite = async (movie) => {
     const response = await addFavoriteToDB(movie, jwt);
-
     sendMessage({
       type: "favorite_movie",
       movie: movie,
       user_name: user.name,
     });
-    console.log(response);
     refetch();
   };
 
   const removeFavorite = async (movie) => {
-    const response = await removeFavoriteFromDB(movie, jwt).then((res) =>
-      console.log(res)
-    );
+    const response = await removeFavoriteFromDB(movie, jwt);
     refetch();
   };
 
@@ -65,13 +59,6 @@ const FavoritesProvider = ({ children }) => {
         error,
       }}
     >
-      {/*isLoading ? (
-        <Spinner />
-      ) : error ? (
-        <p className="text-red-500">Error: {error.message}</p>
-      ) : (
-        children
-      )*/}
       {children}
     </FavoritesContext.Provider>
   );
@@ -90,14 +77,11 @@ async function getFavoritesFromDB(userID, jwt) {
     },
     credentials: "include",
   });
-  //console.log("userid: ", userID);
   if (!response.ok) throw new Error("Failed to fetch trending movies");
   const data = await response.json();
-  //console.log("new data: ", data["favorites"]);
   if (data.Response === "False") {
     throw new Error(data.Error || "Failed to format json.");
   }
-  //console.log("hello ", data);
   return data["favorites"];
 }
 

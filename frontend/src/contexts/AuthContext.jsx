@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useContext, useRef } from "react";
-import { config } from '../config.js';
+import { config } from "../config.js";
 import { useNavigate } from "react-router-dom";
 import { ID } from "appwrite";
 
@@ -9,7 +9,7 @@ const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   const account = config.appwriteAccount;
-  
+
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [jwt, setJwt] = useState(null);
@@ -39,8 +39,6 @@ const AuthProvider = ({ children }) => {
     setLoading(true);
     setAuthError(null);
 
-    //console.log("userInfo", userInfo);
-
     try {
       let response = await account.createEmailPasswordSession(
         userInfo.email,
@@ -52,7 +50,9 @@ const AuthProvider = ({ children }) => {
       navigate("/");
     } catch (error) {
       console.error(error);
-      setAuthError(error.message || "Login failed. Please check your credentials.");
+      setAuthError(
+        error.message || "Login failed. Please check your credentials."
+      );
     }
     setLoading(false);
   };
@@ -102,7 +102,6 @@ const AuthProvider = ({ children }) => {
     try {
       const jwtResponse = await account.createJWT();
       setJwt(jwtResponse.jwt);
-      //console.log("new jwt ", jwtResponse.jwt);
     } catch (error) {
       setJwt(null);
       console.error("JWT generation failed:", error);
@@ -121,14 +120,10 @@ const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={contextData}>
-      {/*loading ? <p>Loading...</p> : children*/}
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextData}>{children}</AuthContext.Provider>
   );
 };
 
-//Custom Hook
 const UseAuth = () => {
   return useContext(AuthContext);
 };

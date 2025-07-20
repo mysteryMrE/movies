@@ -3,9 +3,9 @@ from colorlog import ColoredFormatter
 
 
 def setup_colored_logging():
-    # Create a logger instance
-    logger = logging.getLogger(__name__)  # Or get the root logger: logging.getLogger()
-    logger.setLevel(logging.INFO)  # Set the minimum logging level
+
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
 
     # Define the log format and colors
     formatter = ColoredFormatter(
@@ -23,14 +23,10 @@ def setup_colored_logging():
         style="%",
     )
 
-    # Create a stream handler (to output to console)
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
 
-    # Add the handler to the logger
-    # Ensure you don't add multiple handlers if this function is called multiple times,
-    # or you'll get duplicate output.
-    if not logger.handlers:  # Add handler only if none exist
+    if not logger.handlers:
         logger.addHandler(handler)
 
     return logger

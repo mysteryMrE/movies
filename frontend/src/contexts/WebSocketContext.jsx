@@ -18,28 +18,18 @@ const WebSocketProvider = ({ children }) => {
   const { user, jwt } = UseAuth();
   const cleanupRef = useRef(null);
 
-  // useEffect(() => {
-  //   messageQueueRef.current = messageQueue;
-  //   console.log("messageQueueRef updated:", messageQueueRef.current);
-  // }, [messageQueue]);
-
-
-
   const setupListeners = (ws) => {
     const handleConnectionOpen = () => {
-      console.log("WebSocket opened - updating React state");
       setIsConnected(webSocketService.isConnected());
     };
 
     const handleConnectionClose = () => {
-      console.log("WebSocket closed - updating React state");
       setIsConnected(webSocketService.isConnected());
       cleanup();
     };
 
     const handleMessage = (event) => {
       const data = JSON.parse(event.data);
-      //console.log("adding film:", data);
       setMessageQueue((prevQueue) => {
         const newQueue = [...prevQueue, data];
         messageQueueRef.current = newQueue;
@@ -61,12 +51,9 @@ const WebSocketProvider = ({ children }) => {
   };
 
   const popFirstMessage = useCallback(() => {
-    //console.log("Attempting to pop first message from queue");
-
     const currentQueue = messageQueueRef.current;
 
     if (currentQueue.length === 0) {
-      console.warn("No messages in queue to pop");
       return null;
     }
 
@@ -77,22 +64,16 @@ const WebSocketProvider = ({ children }) => {
       messageQueueRef.current = newQueue;
       return newQueue;
     });
-    //console.log("Popped message:", capturedMessage);
     return capturedMessage;
   }, []);
 
   const toggleMute = () => {
     if (!user) return;
-    console.log(
-      "Toggle called, current state:",
-      webSocketService.isConnected()
-    );
-
     if (webSocketService.isConnected()) {
-      console.log("Disconnecting...");
+
       webSocketService.disconnect();
     } else {
-      console.log("Connecting...");
+
       webSocketService.connect(user.$id, jwt);
 
       // Set up listeners on the NEW WebSocket instance
@@ -105,7 +86,7 @@ const WebSocketProvider = ({ children }) => {
       messageQueueRef.current = newQueue;
       return newQueue;
     });
-  }
+  };
 
   //this context wont ever unmount, but this effect here incase we modify something
   useEffect(() => {
@@ -140,7 +121,6 @@ const WebSocketProvider = ({ children }) => {
 
   const sendMessage = (message) => {
     webSocketService.send(message);
-    //console.log("Message sent:", message);
   };
 
   const contextData = {
@@ -159,18 +139,6 @@ const WebSocketProvider = ({ children }) => {
     sendMessage: () => {},
     messageQueueRef: { current: [] },
   };
-
-  // useInterval(() => {
-  //   console.log("length of queue:", messageQueue.length);
-  //   sendMessage({
-  //     type: "favorite_movie",
-  //     movie: {
-  //       id: Date.now(),
-  //       title: "Test Movie",
-  //       vote_average: 8.0,
-  //     },
-  //   });
-  // }, 5000);
 
   return (
     <WebSocketContext.Provider

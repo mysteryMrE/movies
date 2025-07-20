@@ -10,18 +10,16 @@ import urllib.parse as urlparse
 from appwrite.client import Client
 from appwrite.services.databases import Databases
 from appwrite.query import Query
+from appwrite.services.account import Account
+from appwrite.exception import AppwriteException
 import json
 import threading
 from fastapi import WebSocket, WebSocketDisconnect
-from datetime import datetime
 from websocket_manager import manager
 from utils.logger import setup_colored_logging
 
 
 logger = setup_colored_logging()
-
-
-# TODO: what is this logger
 
 
 class Movie(BaseModel):
@@ -58,27 +56,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-memory_db = {"fruits": []}
-
-
-class Fruit(BaseModel):
-    name: str
-
-
-class Fruits(BaseModel):
-    fruits: list[Fruit]
-
-
-@app.get("/fruits", response_model=Fruits)
-def get_fruits():
-    return Fruits(fruits=memory_db["fruits"])
-
-
-@app.post("/fruits")
-def add_fruit(fruit: Fruit, response_model=Fruit):
-    memory_db["fruits"].append(fruit)
-    return fruit
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -143,12 +120,6 @@ async def get_movies(search_term: str = None):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-APPWRITE_ENDPOINT = os.getenv("APPWRITE_ENDPOINT")
-APPWRITE_PROJECT_ID = os.getenv("APPWRITE_PROJECT_ID")
-APPWRITE_DATABASE_ID = os.getenv("APPWRITE_DATABASE_ID")
-APPWRITE_COLLECTION_ID = os.getenv("APPWRITE_COLLECTION_ID")
-APPWRITE_API_KEY = os.getenv("APPWRITE_API_KEY")
-
 client = Client()
 client.set_endpoint(APPWRITE_ENDPOINT)
 client.set_project(APPWRITE_PROJECT_ID)
@@ -182,7 +153,7 @@ def update_search_count(search_term: str, movie: Movie):
             database.create_document(
                 APPWRITE_DATABASE_ID,
                 APPWRITE_COLLECTION_ID,
-                "unique()",  # Use "unique()" for unique ID
+                "unique()",
                 {
                     "search_term": search_term,
                     "count": 1,
@@ -212,16 +183,11 @@ def get_trending_movies():
         raise HTTPException(status_code=500, detail="Error fetching trending movies")
 
 
-from appwrite.client import Client
-from appwrite.services.account import Account
-from appwrite.exception import AppwriteException
-
-
 def test_jwt(jwt: str):
     try:
         # Initialize Appwrite client
         client = Client()
-        client.set_endpoint("https://fra.cloud.appwrite.io/v1")
+        client.set_endpoint(APPWRITE_ENDPOINT)
         client.set_project(APPWRITE_PROJECT_ID)
         client.set_jwt(jwt)  # Set the JWT for this request
 
@@ -241,11 +207,6 @@ def test_jwt(jwt: str):
 
 def get_current_user_id(request: Request):
     auth_header = request.headers.get("Authorization")
-
-    # for testing purposes
-    if not auth_header:
-        print("No auth header found, using default test user")
-        return "685845f800158229181c"  # Your test user ID
 
     if not auth_header or not auth_header.startswith("Bearer "):
         raise HTTPException(
@@ -409,6 +370,7 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str, jwt: str):
         "http://localhost:3000",
         "http://localhost:5173",
         "http://frontend:3000",
+        "https://movie-app-frontend-297123749347.europe-west3.run.app",  # TODO: replace with your actual frontend URL
     ]
 
     if origin and origin not in allowed_origins:
@@ -431,7 +393,6 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str, jwt: str):
                 message = json.loads(data)
                 message_type = message.get("type")
                 if message_type == "ping":
-                    # logger.critical(f"Ping received from {user_id}")
                     await manager.send_personal_message(
                         {"type": "pong", "timestamp": message.get("timestamp")}, user_id
                     )
@@ -440,9 +401,6 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str, jwt: str):
                     movie = message.get("movie")
                     user_name = message.get("user_name", "Unknown User")
                     if movie:
-                        # logger.error(
-                        #     f"Favorite movie action received from {user_id}: {movie}"
-                        # )
                         await manager.handle_favorite_action(user_id, movie, user_name)
                 else:
                     logger.warning(f"Unknown message type: {message_type}")

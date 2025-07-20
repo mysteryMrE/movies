@@ -5,8 +5,6 @@ from utils.logger import setup_colored_logging
 
 logger = setup_colored_logging()
 
-# TODO handle reconnections properly
-
 
 class ConnectionManager:
     def __init__(self):
@@ -86,7 +84,7 @@ class ConnectionManager:
         try:
             notification = {
                 "type": "new_favorite",
-                "message": f"🎬 {user_name} just favorited '{movie_data['title']}'",
+                "message": f"🎬 {user_name} just favorited {movie_data['title']}",
             }
             await self.send_personal_message(
                 {
@@ -109,5 +107,4 @@ class ConnectionManager:
             return 0
 
 
-# Global connection manager instance
 manager = ConnectionManager()

@@ -7,7 +7,11 @@ function getConfig() {
       appwriteProjectId: window.APP_CONFIG.VITE_APPWRITE_PROJECT_ID,
       fastapiBaseUrl: window.APP_CONFIG.VITE_FASTAPI_BASE_URL,
       fastapiBaseSocket: window.APP_CONFIG.VITE_FASTAPI_BASE_SOCKET,
-      appwriteAccount: new Account(new Client().setEndpoint(window.APP_CONFIG.VITE_APPWRITE_ENDPOINT).setProject(window.APP_CONFIG.VITE_APPWRITE_PROJECT_ID))
+      appwriteAccount: new Account(
+        new Client()
+          .setEndpoint(window.APP_CONFIG.VITE_APPWRITE_ENDPOINT)
+          .setProject(window.APP_CONFIG.VITE_APPWRITE_PROJECT_ID)
+      ),
     };
   } else {
     return {
@@ -15,10 +19,13 @@ function getConfig() {
       appwriteProjectId: import.meta.env.VITE_APPWRITE_PROJECT_ID,
       fastapiBaseUrl: import.meta.env.VITE_FASTAPI_BASE_URL,
       fastapiBaseSocket: import.meta.env.VITE_FASTAPI_BASE_SOCKET,
-      appwriteAccount: new Account(new Client().setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT).setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID))
+      appwriteAccount: new Account(
+        new Client()
+          .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT)
+          .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID)
+      ),
     };
   }
 }
 
 export const config = getConfig();
-
