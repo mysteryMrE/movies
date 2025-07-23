@@ -90,11 +90,9 @@ describe("MovieCard Component", () => {
 
   describe("when user is authenticated", () => {
     const mockAddFavorite = vi.fn(() => {
-      console.log("Adding favorite");
       mockIsFavorite.mockReturnValue(true);
     });
     const mockRemoveFavorite = vi.fn(() => {
-      console.log("Removing favorite");
       mockIsFavorite.mockReturnValue(false);
     });
     const mockIsFavorite = vi.fn();
@@ -162,7 +160,6 @@ describe("MovieCard Component", () => {
 
       renderMovieCard();
 
-      screen.debug();
       expect(screen.getByRole("status")).toBeInTheDocument();
       expect(screen.getByText("Loading...")).toBeInTheDocument();
       expect(screen.queryByText(mockMovie.title)).not.toBeInTheDocument();
@@ -184,7 +181,6 @@ describe("MovieCard Component", () => {
 
       renderMovieCard();
 
-      screen.debug();
       expect(screen.getByRole("status")).toBeInTheDocument();
       expect(screen.getByText("Loading...")).toBeInTheDocument();
       expect(screen.queryByText(mockMovie.title)).not.toBeInTheDocument();

@@ -1,6 +1,6 @@
 import { Client, Account } from "appwrite";
 function getConfig() {
-  console.log("🐛 Debug env vars:", window.APP_CONFIG);
+  //console.debug("🐛 Debug env vars:", window.APP_CONFIG);
   if (window.APP_CONFIG) {
     return {
       appwriteUrl: window.APP_CONFIG.VITE_APPWRITE_ENDPOINT,
