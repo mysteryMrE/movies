@@ -9,5 +9,4 @@ echo "  VITE_FASTAPI_BASE_URL: \"$FASTAPI_BASE_URL\"," >> ./dist/env-config.js
 echo "  VITE_FASTAPI_BASE_SOCKET: \"$FASTAPI_BASE_SOCKET\"" >> ./dist/env-config.js
 echo "};" >> ./dist/env-config.js
 echo "Runtime configuration created."
-echo $APPWRITE_ENDPOINT
 exec serve -s dist -l 8080
