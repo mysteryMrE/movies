@@ -94,6 +94,11 @@ headers = {
 }
 
 
+@app.get("/")
+async def root():
+    return {"message": "Welcome to the Movie App API!"}
+
+
 @app.get("/api/movies", response_model=Movies)
 async def get_movies(search_term: str = None):
     try:
