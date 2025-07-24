@@ -1,12 +1,28 @@
 from fastapi.testclient import TestClient
 import sys
 import os
-from unittest.mock import patch, MagicMock, call, AsyncMock
+from unittest.mock import patch, MagicMock, AsyncMock
 import httpx
+import pytest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from main import app
+# Mock environment variables BEFORE importing main
+mock_env = {
+    "TMDB_BASE_URL": "http://mock-tmdb.com/3",
+    "TMDB_API_KEY": "mock_tmdb_key_for_test",
+    "APPWRITE_ENDPOINT": "http://mock-appwrite.com",
+    "APPWRITE_PROJECT_ID": "mock_project_id",
+    "APPWRITE_DATABASE_ID": "mock_database_id",
+    "APPWRITE_COLLECTION_ID": "mock_collection_id",
+    "APPWRITE_API_KEY": "mock_appwrite_api_key",
+}
+
+# Patch os.getenv before importing main
+with patch(
+    "os.getenv", side_effect=lambda key, default=None: mock_env.get(key, default)
+):
+    from main import app
 
 client = TestClient(app)
 

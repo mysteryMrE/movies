@@ -86,6 +86,7 @@ APPWRITE_COLLECTION_ID = os.getenv("APPWRITE_COLLECTION_ID")
 APPWRITE_API_KEY = os.getenv("APPWRITE_API_KEY")
 
 print("Environment variables loaded successfully")
+print(f"TMDB_BASE_URL: {TMDB_BASE_URL}")
 
 
 headers = {
