@@ -113,7 +113,7 @@ If you have docker installed, using it is the faster and easier way.
      ```
    - Run the containers
      ```bash
-     docker run -e APPWRITE_ENDPOINT=https://fra.cloud.appwrite.io/v1 -e APPWRITE_PROJECT_ID=6851780b002c90986037 -e FASTAPI_BASE_URL=http://localhost:8000 -e FASTAPI_BASE_SOCKET=ws://localhost:8000/ws -p 3000:8080 movie-project-frontend
+     docker run -e APPWRITE_ENDPOINT=https://fra.cloud.appwrite.io/v1 -e APPWRITE_PROJECT_ID=123abc -e FASTAPI_BASE_URL=http://localhost:8000 -e FASTAPI_BASE_SOCKET=ws://localhost:8000/ws -p 3000:8080 movie-project-frontend
      ```
      > Note: for running it without docker you need the .env to contain VITE_something variables, but the entrypoint script expects the variables without the VITE prefix. Feel free to create a suitable .env file and use --env-file instead of the -e
      ```bash
