@@ -11,11 +11,6 @@ on:
   # Add manual trigger for testing
   workflow_dispatch:
 
-  # Add push trigger for testing (remove this later if you only want workflow_run)
-  push:
-    branches:
-      - "main"
-
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
